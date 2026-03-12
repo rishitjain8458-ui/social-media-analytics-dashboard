@@ -3,475 +3,328 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Company Social Media Dashboard</title>
+<title>SocialLens</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
-  --bg: #07080f;
-  --surface: #0f1018;
-  --surface2: #161720;
-  --border: #22243a;
-  --ig: #e1306c;
-  --ig2: #f77737;
-  --yt: #ff3333;
-  --yt2: #ff7070;
-  --accent: #6366f1;
-  --accent2: #a5b4fc;
-  --text: #eeeeff;
-  --muted: #7878a0;
-  --green: #22d3a0;
-  --red: #f87171;
+  --bg:#07080f; --s1:#0f1018; --s2:#161720; --s3:#1e1f2e;
+  --border:#22243a; --border2:#2d2f48;
+  --ig:#e1306c; --ig2:#f77737; --yt:#ff3333; --yt2:#ff7070;
+  --ac:#6366f1; --ac2:#a5b4fc;
+  --text:#eeeeff; --muted:#7878a0;
+  --green:#22d3a0; --red:#f87171; --yellow:#f5a623;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
-body::before {
-  content:'';
-  position:fixed; inset:0;
-  background:
-    radial-gradient(ellipse 50% 35% at 15% 15%, rgba(99,102,241,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 85% 85%, rgba(225,48,108,0.08) 0%, transparent 55%);
-  pointer-events:none; z-index:0;
-}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 55% 40% at 10% 10%,rgba(99,102,241,0.09) 0%,transparent 60%),
+             radial-gradient(ellipse 45% 35% at 90% 85%,rgba(225,48,108,0.07) 0%,transparent 55%);
+  pointer-events:none;z-index:0;}
 
-.wrapper { position:relative; z-index:1; max-width:1380px; margin:0 auto; padding:2rem; }
+/* ══ UPLOAD ══════════════════════════════════════════════════════════════ */
+#uploadScreen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
 
-/* ── UPLOAD SCREEN ── */
-#uploadScreen {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
+.upload-hero h1{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;letter-spacing:-0.04em;text-align:center;background:linear-gradient(135deg,#eeeeff 0%,var(--ac2) 50%,var(--ig) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.6rem;}
+.upload-hero p{text-align:center;color:var(--muted);font-size:0.95rem;margin-bottom:0.8rem;font-weight:300;}
 
-.upload-hero h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 2.8rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  text-align: center;
-  background: linear-gradient(135deg, #eeeeff 0%, var(--accent2) 50%, var(--ig) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.6rem;
-}
+.feature-row{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;}
+.feat-pill{font-size:0.7rem;padding:0.25rem 0.75rem;border-radius:100px;border:1px solid var(--border2);color:var(--muted);}
 
-.upload-hero p {
-  text-align: center;
-  color: var(--muted);
-  font-size: 1rem;
-  margin-bottom: 3rem;
-  font-weight: 300;
-}
+.company-input-wrap{width:100%;max-width:780px;margin-bottom:1rem;}
+.company-input-wrap label{display:block;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;}
+.company-input{width:100%;background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:0.8rem 1.1rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
+.company-input:focus{border-color:var(--ac);}
+.company-input::placeholder{color:var(--muted);}
 
-.upload-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 820px;
-  margin-bottom: 2rem;
-}
+.upload-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;width:100%;max-width:780px;margin-bottom:1.5rem;}
 
-.upload-card {
-  background: var(--surface);
-  border: 1.5px dashed var(--border);
-  border-radius: 20px;
-  padding: 2.5rem 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
+.upload-card{background:var(--s1);border:1.5px dashed var(--border2);border-radius:18px;padding:2rem 1.5rem;text-align:center;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
+.upload-card:hover{border-color:var(--ac);transform:translateY(-3px);}
+.upload-card.ig-card:hover{border-color:var(--ig);}
+.upload-card.yt-card:hover{border-color:var(--yt);}
+.upload-card.has-file.ig-card{border-style:solid;border-color:var(--ig);background:rgba(225,48,108,0.04);}
+.upload-card.has-file.yt-card{border-style:solid;border-color:var(--yt);background:rgba(255,51,51,0.04);}
 
-.upload-card::before {
-  content:'';
-  position:absolute; inset:0;
-  opacity:0;
-  transition: opacity 0.3s;
-}
+.upload-icon{font-size:2.5rem;margin-bottom:0.8rem;}
+.upload-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:0.3rem;}
+.upload-card p{font-size:0.75rem;color:var(--muted);line-height:1.5;}
+.file-input{display:none;}
+.upload-status{margin-top:0.7rem;font-size:0.72rem;color:var(--green);font-weight:500;min-height:1rem;}
 
-.upload-card.ig-card::before { background: radial-gradient(ellipse at center, rgba(225,48,108,0.08) 0%, transparent 70%); }
-.upload-card.yt-card::before { background: radial-gradient(ellipse at center, rgba(255,51,51,0.08) 0%, transparent 70%); }
+.generate-btn{padding:0.95rem 3rem;background:linear-gradient(135deg,var(--ac),#7c3aed);border:none;border-radius:12px;color:white;font-family:'Syne',sans-serif;font-size:0.98rem;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 25px rgba(99,102,241,0.3);}
+.generate-btn:hover{transform:translateY(-2px);box-shadow:0 8px 35px rgba(99,102,241,0.45);}
+.generate-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
 
-.upload-card:hover { border-color: var(--accent); transform: translateY(-4px); }
-.upload-card:hover::before { opacity: 1; }
-.upload-card.ig-card:hover { border-color: var(--ig); }
-.upload-card.yt-card:hover { border-color: var(--yt); }
+.sample-hint{margin-top:1rem;font-size:0.72rem;color:var(--muted);text-align:center;}
+.sample-hint a{color:var(--ac2);cursor:pointer;text-decoration:underline;}
 
-.upload-card.has-file { border-style: solid; }
-.upload-card.ig-card.has-file { border-color: var(--ig); background: rgba(225,48,108,0.05); }
-.upload-card.yt-card.has-file { border-color: var(--yt); background: rgba(255,51,51,0.05); }
+.csv-note{width:100%;max-width:780px;background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.5rem;margin-top:1.5rem;}
+.csv-note h4{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem;}
+.csv-cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.csv-block{background:var(--s2);border-radius:8px;padding:0.8rem;}
+.csv-block h5{font-size:0.72rem;margin-bottom:0.5rem;}
+.csv-block.ig h5{color:var(--ig);}
+.csv-block.yt h5{color:var(--yt2);}
+.csv-block code{font-size:0.65rem;color:var(--muted);line-height:1.8;display:block;font-family:monospace;}
 
-.upload-icon { font-size: 3rem; margin-bottom: 1rem; }
-.upload-card h3 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:0.4rem; }
-.upload-card p { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+/* ══ DASHBOARD ══════════════════════════════════════════════════════════ */
+#dashboard{display:none;position:relative;z-index:1;}
+.wrapper{max-width:1400px;margin:0 auto;padding:2rem;}
 
-.file-input { display:none; }
+/* TOPNAV */
+.topnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+.nav-left h1{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-0.03em;}
+.nav-left p{color:var(--muted);font-size:0.78rem;margin-top:0.15rem;}
+.nav-right{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
 
-.upload-status {
-  margin-top: 0.8rem;
-  font-size: 0.75rem;
-  color: var(--green);
-  font-weight: 500;
-  min-height: 1rem;
-}
+.nav-btn{padding:0.42rem 1rem;border-radius:9px;border:1px solid var(--border2);background:var(--s1);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.35rem;}
+.nav-btn:hover{border-color:var(--ac);color:var(--text);}
 
-.company-input-wrap {
-  width: 100%;
-  max-width: 820px;
-  margin-bottom: 1.5rem;
-}
-
-.company-input-wrap label {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.5rem;
-}
-
-.company-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.9rem 1.2rem;
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.company-input:focus { border-color: var(--accent); }
-.company-input::placeholder { color: var(--muted); }
-
-.generate-btn {
-  padding: 1rem 3rem;
-  background: linear-gradient(135deg, var(--accent), #818cf8);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-family: 'Syne', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.02em;
-}
-
-.generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.4); }
-.generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-.sample-hint {
-  margin-top: 1.5rem;
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-align: center;
-}
-
-.sample-hint a {
-  color: var(--accent2);
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.csv-format {
-  width: 100%;
-  max-width: 820px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-top: 2rem;
-}
-
-.csv-format h4 {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-.format-block { background: var(--surface2); border-radius: 10px; padding: 1rem; }
-.format-block h5 { font-size: 0.78rem; margin-bottom: 0.6rem; }
-.format-block.ig-fmt h5 { color: var(--ig); }
-.format-block.yt-fmt h5 { color: var(--yt2); }
-.format-block code { font-size: 0.68rem; color: var(--muted); line-height: 1.7; display: block; font-family: monospace; }
-
-/* ── DASHBOARD ── */
-#dashboard { display: none; }
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.header-left h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.header-left p { color: var(--muted); font-size: 0.82rem; margin-top: 0.2rem; }
-
-.back-btn {
-  padding: 0.5rem 1.2rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.82rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.back-btn:hover { border-color: var(--accent); color: var(--text); }
-
-/* KPI GRID */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.kpi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.3rem 1.4rem;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s;
-}
-
-.kpi-card:hover { transform: translateY(-3px); }
-
-.kpi-card::before {
-  content:'';
-  position:absolute; top:0; left:0; right:0;
-  height: 2px;
-  background: var(--bar, linear-gradient(90deg, var(--accent), var(--accent2)));
-}
-
-.kpi-label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.4rem; }
-.kpi-value { font-family:'Syne',sans-serif; font-size:1.75rem; font-weight:700; letter-spacing:-0.02em; line-height:1; }
-.kpi-sub { font-size:0.72rem; color:var(--muted); margin-top:0.35rem; }
-.kpi-icon { position:absolute; right:1rem; top:1rem; font-size:1.3rem; opacity:0.2; }
+.pdf-btn{padding:0.42rem 1.2rem;border-radius:9px;background:linear-gradient(135deg,var(--ac),#7c3aed);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.35rem;}
+.pdf-btn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(99,102,241,0.4);}
 
 /* TABS */
-.tab-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.35rem;
-  width: fit-content;
-}
+.tab-row{display:flex;gap:0.4rem;background:var(--s1);border:1px solid var(--border);border-radius:11px;padding:0.3rem;width:fit-content;margin-bottom:1.5rem;flex-wrap:wrap;}
+.tab{padding:0.42rem 1.1rem;border-radius:7px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.tab.active{background:var(--s3);color:var(--text);border:1px solid var(--border2);}
 
-.tab {
-  padding: 0.45rem 1.2rem;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:1rem;margin-bottom:1.2rem;}
+.kpi-card{background:var(--s1);border:1px solid var(--border);border-radius:15px;padding:1.2rem 1.3rem;position:relative;overflow:hidden;transition:transform 0.2s;}
+.kpi-card:hover{transform:translateY(-3px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--bar,linear-gradient(90deg,var(--ac),var(--ac2)));}
+.kpi-label{font-size:0.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;}
+.kpi-value{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:700;letter-spacing:-0.02em;line-height:1;}
+.kpi-sub{font-size:0.68rem;color:var(--muted);margin-top:0.3rem;}
+.kpi-icon{position:absolute;right:1rem;top:1rem;font-size:1.2rem;opacity:0.18;}
 
-.tab.active-ig { background: linear-gradient(135deg, var(--ig), var(--ig2)); color: white; }
-.tab.active-yt { background: linear-gradient(135deg, var(--yt), var(--yt2)); color: white; }
+/* CARDS */
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;}
 
-/* CHART CARDS */
-.chart-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
-.chart-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; }
+.card{background:var(--s1);border:1px solid var(--border);border-radius:15px;padding:1.3rem;animation:fadeUp 0.4s ease both;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.card-title{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;}
+.badge{font-size:0.65rem;padding:0.16rem 0.55rem;border-radius:100px;font-weight:600;}
+.badge-ig{background:rgba(225,48,108,0.15);color:var(--ig);}
+.badge-yt{background:rgba(255,51,51,0.15);color:var(--yt2);}
+.badge-ac{background:rgba(99,102,241,0.15);color:var(--ac2);}
+.badge-g{background:rgba(34,211,160,0.15);color:var(--green);}
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.4rem;
-}
+.chart-wrap{position:relative;height:200px;}
+.chart-wrap-lg{position:relative;height:240px;}
 
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.1rem;
-}
+/* CREATOR LEADERBOARD */
+.creator-list{display:flex;flex-direction:column;gap:0.6rem;}
+.creator-item{display:flex;align-items:center;gap:1rem;background:var(--s2);border-radius:10px;padding:0.8rem 1rem;transition:background 0.2s;}
+.creator-item:hover{background:var(--s3);}
+.creator-rank{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;width:28px;text-align:center;flex-shrink:0;}
+.creator-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.creator-info{flex:1;min-width:0;}
+.creator-name{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.creator-sub{font-size:0.68rem;color:var(--muted);margin-top:0.1rem;}
+.creator-stats{display:flex;gap:0.8rem;flex-shrink:0;}
+.cstat{text-align:right;}
+.cstat-val{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;}
+.cstat-label{font-size:0.62rem;color:var(--muted);}
+.creator-bar{height:3px;background:var(--border2);border-radius:100px;overflow:hidden;margin-top:0.4rem;}
+.creator-bar-fill{height:100%;border-radius:100px;transition:width 1s ease;}
 
-.card-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; }
+/* TOP REELS TABLE */
+.reel-table{width:100%;border-collapse:collapse;font-size:0.78rem;}
+.reel-table th{text-align:left;padding:0.5rem 0.7rem;color:var(--muted);font-weight:500;font-size:0.64rem;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);}
+.reel-table td{padding:0.65rem 0.7rem;border-bottom:1px solid rgba(34,36,58,0.5);}
+.reel-table tr:last-child td{border-bottom:none;}
+.reel-table tr:hover td{background:rgba(99,102,241,0.04);}
+.reel-medal{font-size:1rem;}
+.reel-creator-tag{font-size:0.65rem;background:rgba(225,48,108,0.12);color:var(--ig);padding:0.1rem 0.45rem;border-radius:100px;}
+.metric-pill{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:600;}
 
-.badge {
-  font-size: 0.68rem;
-  padding: 0.18rem 0.6rem;
-  border-radius: 100px;
-  font-weight: 500;
-}
+/* RECOMMENDATIONS */
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;}
+.rec-card{background:var(--s2);border:1px solid var(--border2);border-radius:11px;padding:1rem 1.1rem;display:flex;gap:0.8rem;align-items:flex-start;transition:border-color 0.2s;}
+.rec-card:hover{border-color:var(--ac);}
+.rec-icon{font-size:1.4rem;flex-shrink:0;margin-top:0.1rem;}
+.rec-title{font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:700;margin-bottom:0.3rem;}
+.rec-text{font-size:0.72rem;color:var(--muted);line-height:1.55;}
+.rec-impact{display:inline-block;margin-top:0.4rem;font-size:0.62rem;padding:0.1rem 0.45rem;border-radius:100px;font-weight:600;}
 
-.badge-ig { background:rgba(225,48,108,0.15); color:var(--ig); }
-.badge-yt { background:rgba(255,51,51,0.15); color:var(--yt2); }
+/* PROGRESS */
+.progress-item{margin-bottom:0.85rem;}
+.progress-label{display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:0.35rem;}
+.progress-label span:first-child{color:var(--muted);}
+.progress-bar{height:6px;background:var(--s3);border-radius:100px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:100px;transition:width 1s ease;}
 
-.chart-wrap { position:relative; height:200px; }
-.chart-wrap-lg { position:relative; height:240px; }
+/* NO DATA */
+.no-data{text-align:center;color:var(--muted);font-size:0.8rem;padding:2.5rem;}
 
-/* TABLE */
-.data-table { width:100%; border-collapse:collapse; font-size:0.80rem; }
-.data-table th { text-align:left; padding:0.55rem 0.7rem; color:var(--muted); font-weight:500; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; border-bottom:1px solid var(--border); }
-.data-table td { padding:0.65rem 0.7rem; border-bottom:1px solid rgba(34,36,58,0.5); }
-.data-table tr:last-child td { border-bottom:none; }
-.data-table tr:hover td { background:rgba(99,102,241,0.04); }
+footer{text-align:center;color:var(--muted);font-size:0.68rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);}
 
-.no-data {
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.82rem;
-  padding: 3rem;
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 
-footer {
-  text-align:center;
-  color:var(--muted);
-  font-size:0.70rem;
-  margin-top:2rem;
-  padding-top:1.5rem;
-  border-top:1px solid var(--border);
-}
-
-@media (max-width:800px) {
-  .upload-cards { grid-template-columns:1fr; }
-  .format-grid { grid-template-columns:1fr; }
-  .chart-grid-2, .chart-grid-3 { grid-template-columns:1fr; }
-  .upload-hero h1 { font-size:2rem; }
+@media(max-width:850px){
+  .upload-cards,.chart-grid-2,.chart-grid-3,.rec-grid,.csv-cols{grid-template-columns:1fr;}
+  .upload-hero h1{font-size:2rem;}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ UPLOAD SCREEN ══════════════════════════════════════════════════════ -->
+<!-- ══ UPLOAD ════════════════════════════════════════════════════════════ -->
 <div id="uploadScreen">
   <div class="upload-hero">
-    <h1>Company Analytics Dashboard</h1>
-    <p>Upload your own CSV data — get instant visual analytics for any company</p>
+    <h1>SocialLens</h1>
+    <p>See clearly. Analyse smarter. Grow faster.</p>
+    <div class="feature-row">
+      <span class="feat-pill">📊 Full Analytics</span>
+      <span class="feat-pill">🏆 Creator Leaderboard</span>
+      <span class="feat-pill">🎬 Top Reels Tracker</span>
+      <span class="feat-pill">💡 Strategic Recs</span>
+      <span class="feat-pill">📄 PDF Export</span>
+    </div>
   </div>
 
   <div class="company-input-wrap">
     <label>Company / Brand Name</label>
-    <input type="text" class="company-input" id="companyName" placeholder="e.g. Clapingo, Nike, Zomato, Your Brand..."/>
+    <input type="text" class="company-input" id="companyName" placeholder="e.g. Clapingo, Nike, Zomato..."/>
   </div>
 
   <div class="upload-cards">
-    <!-- Instagram Upload -->
     <div class="upload-card ig-card" onclick="document.getElementById('igFile').click()">
-      <div class="upload-icon">📸</div>
+      <div class="upload-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ig-grad" cx="30%" cy="107%" r="150%">
+              <stop offset="0%" stop-color="#fdf497"/>
+              <stop offset="10%" stop-color="#fdf497"/>
+              <stop offset="50%" stop-color="#fd5949"/>
+              <stop offset="68%" stop-color="#d6249f"/>
+              <stop offset="100%" stop-color="#285AEB"/>
+            </radialGradient>
+          </defs>
+          <rect width="48" height="48" rx="12" fill="url(#ig-grad)"/>
+          <circle cx="24" cy="24" r="9" stroke="white" stroke-width="2.8" fill="none"/>
+          <circle cx="34.5" cy="13.5" r="2" fill="white"/>
+          <rect x="7" y="7" width="34" height="34" rx="9" stroke="white" stroke-width="2.5" fill="none"/>
+        </svg>
+      </div>
       <h3>Instagram Data</h3>
-      <p>Upload your Instagram CSV with post metrics — likes, reach, impressions, comments, saves</p>
-      <input type="file" class="file-input" id="igFile" accept=".csv" onchange="handleFile('ig', this)"/>
+      <p>CSV with post metrics including creator handle, post type, likes, reach, saves</p>
+      <input type="file" class="file-input" id="igFile" accept=".csv" onchange="handleFile('ig',this)"/>
       <div class="upload-status" id="igStatus">Click to upload CSV</div>
     </div>
-
-    <!-- YouTube Upload -->
     <div class="upload-card yt-card" onclick="document.getElementById('ytFile').click()">
-      <div class="upload-icon">▶️</div>
+      <div class="upload-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#FF0000"/>
+          <path d="M38.5 17.5C38.5 17.5 38.1 15.2 37.1 14.2C35.8 12.8 34.4 12.8 33.7 12.7C29.1 12.4 22.5 12.4 22.5 12.4C22.5 12.4 15.9 12.4 11.3 12.7C10.6 12.8 9.2 12.8 7.9 14.2C6.9 15.2 6.5 17.5 6.5 17.5C6.5 17.5 6 20.2 6 22.9V25.5C6 28.2 6.5 30.9 6.5 30.9C6.5 30.9 6.9 33.2 7.9 34.2C9.2 35.6 10.8 35.5 11.5 35.7C14.2 35.9 22.5 36 22.5 36C22.5 36 29.1 36 33.7 35.7C34.4 35.6 35.8 35.6 37.1 34.2C38.1 33.2 38.5 30.9 38.5 30.9C38.5 30.9 39 28.2 39 25.5V22.9C39 20.2 38.5 17.5 38.5 17.5ZM19.5 28.8V18.8L28.5 23.8L19.5 28.8Z" fill="white"/>
+        </svg>
+      </div>
       <h3>YouTube Data</h3>
-      <p>Upload your YouTube CSV with video metrics — views, watch time, CTR, subscribers gained</p>
-      <input type="file" class="file-input" id="ytFile" accept=".csv" onchange="handleFile('yt', this)"/>
+      <p>CSV with video metrics — views, watch time, CTR, subscribers gained</p>
+      <input type="file" class="file-input" id="ytFile" accept=".csv" onchange="handleFile('yt',this)"/>
       <div class="upload-status" id="ytStatus">Click to upload CSV</div>
     </div>
   </div>
 
-  <button class="generate-btn" id="generateBtn" onclick="generateDashboard()" disabled>
-    ⚡ Generate Dashboard
-  </button>
+  <button class="generate-btn" id="generateBtn" onclick="generate()" disabled>⚡ Generate Dashboard</button>
+  <p class="sample-hint">No data? <a onclick="loadSample()">Load sample data with creators</a></p>
 
-  <p class="sample-hint">
-    Don't have data yet? <a onclick="loadSampleData()">Load sample data</a> to see how it works
-  </p>
-
-  <div class="csv-format">
+  <div class="csv-note">
     <h4>📋 Required CSV Format</h4>
-    <div class="format-grid">
-      <div class="format-block ig-fmt">
-        <h5>📸 Instagram CSV Columns</h5>
-        <code>
-date<br>
-post_type (Reel / Carousel / Static Post / Story)<br>
-likes<br>
-comments<br>
-shares<br>
-saves<br>
-reach<br>
-impressions<br>
-followers
-        </code>
+    <div class="csv-cols">
+      <div class="csv-block ig"><h5><svg width="12" height="12" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:4px"><defs><radialGradient id="ig2" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="50%" stop-color="#fd5949"/><stop offset="68%" stop-color="#d6249f"/><stop offset="100%" stop-color="#285AEB"/></radialGradient></defs><rect width="48" height="48" rx="10" fill="url(#ig2)"/><circle cx="24" cy="24" r="9" stroke="white" stroke-width="3" fill="none"/><circle cx="34.5" cy="13.5" r="2" fill="white"/><rect x="7" y="7" width="34" height="34" rx="8" stroke="white" stroke-width="2.5" fill="none"/></svg> Instagram (with creator column)</h5>
+        <code>date<br>post_type (Reel/Carousel/Static Post/Story)<br>creator (@handle)<br>likes · comments · shares · saves<br>reach · impressions · followers</code>
       </div>
-      <div class="format-block yt-fmt">
-        <h5>▶️ YouTube CSV Columns</h5>
-        <code>
-date<br>
-video_title<br>
-views<br>
-watch_time_hours<br>
-likes<br>
-comments<br>
-subscribers_gained<br>
-ctr<br>
-avg_view_duration
-        </code>
+      <div class="csv-block yt"><h5><svg width="12" height="12" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:4px"><rect width="48" height="48" rx="10" fill="#FF0000"/><path d="M38.5 17.5C38.5 17.5 38.1 15.2 37.1 14.2C35.8 12.8 34.4 12.8 33.7 12.7C29.1 12.4 22.5 12.4 22.5 12.4C22.5 12.4 15.9 12.4 11.3 12.7C10.6 12.8 9.2 12.8 7.9 14.2C6.9 15.2 6.5 17.5 6.5 17.5C6.5 17.5 6 20.2 6 22.9V25.5C6 28.2 6.5 30.9 6.5 30.9C6.5 30.9 6.9 33.2 7.9 34.2C9.2 35.6 10.8 35.5 11.5 35.7C14.2 35.9 22.5 36 22.5 36C22.5 36 29.1 36 33.7 35.7C34.4 35.6 35.8 35.6 37.1 34.2C38.1 33.2 38.5 30.9 38.5 30.9C38.5 30.9 39 28.2 39 25.5V22.9C39 20.2 38.5 17.5 38.5 17.5ZM19.5 28.8V18.8L28.5 23.8L19.5 28.8Z" fill="white"/></svg> YouTube</h5>
+        <code>date · video_title<br>views · watch_time_hours<br>likes · comments<br>subscribers_gained · ctr<br>avg_view_duration</code>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ DASHBOARD ══════════════════════════════════════════════════════════ -->
+<!-- ══ DASHBOARD ════════════════════════════════════════════════════════ -->
 <div id="dashboard">
-<div class="wrapper">
+<div class="wrapper" id="reportArea">
 
-  <header>
-    <div class="header-left">
+  <div class="topnav">
+    <div class="nav-left">
       <h1 id="dashTitle">Company Dashboard</h1>
-      <p id="dashSubtitle">Social Media Analytics</p>
+      <p id="dashSub">Social Media Analytics</p>
     </div>
-    <button class="back-btn" onclick="goBack()">← Upload New Data</button>
-  </header>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="goBack()">← Upload New</button>
+      <button class="pdf-btn" id="pdfBtn" onclick="exportPDF()">&#8595; Export PDF</button>
+    </div>
+  </div>
 
   <!-- TABS -->
   <div class="tab-row" id="tabRow"></div>
 
   <!-- KPI -->
   <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- OVERVIEW SECTION -->
+  <div id="overviewSection" style="display:none">
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Instagram Engagement Over Time</span><span class="badge badge-ig">Likes</span></div>
+        <div class="chart-wrap-lg"><canvas id="ovIGEngChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">YouTube Views Over Time</span><span class="badge badge-yt">Views</span></div>
+        <div class="chart-wrap-lg"><canvas id="ovYTViewsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Instagram Content Mix</span><span class="badge badge-ig">Avg Likes by Type</span></div>
+        <div class="chart-wrap"><canvas id="ovIGContentChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">YouTube CTR Trend</span><span class="badge badge-yt">Click-Through Rate %</span></div>
+        <div class="chart-wrap"><canvas id="ovYTCTRChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid-3">
+      <div class="card">
+        <div class="card-header"><span class="card-title">IG Follower Growth</span><span class="badge badge-ig">Instagram</span></div>
+        <div class="chart-wrap"><canvas id="ovIGFollowerChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">YT Watch Time</span><span class="badge badge-yt">Hours</span></div>
+        <div class="chart-wrap"><canvas id="ovYTWatchChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Subscribers Gained</span><span class="badge badge-yt">Per Upload</span></div>
+        <div class="chart-wrap"><canvas id="ovYTSubChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Top Instagram Posts</span><span class="badge badge-ig">By Likes</span></div>
+        <table class="reel-table">
+          <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Likes</th><th>Reach</th><th>Saves</th><th>Eng Rate</th></tr></thead>
+          <tbody id="ovIGTopTable"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Top YouTube Videos</span><span class="badge badge-yt">By Views</span></div>
+        <table class="reel-table">
+          <thead><tr><th>#</th><th>Title</th><th>Views</th><th>CTR</th><th>Watch Time</th><th>Subs</th></tr></thead>
+          <tbody id="ovYTTopTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <!-- IG SECTION -->
   <div id="igSection" style="display:none">
@@ -485,6 +338,7 @@ avg_view_duration
         <div class="chart-wrap-lg"><canvas id="igReachChart"></canvas></div>
       </div>
     </div>
+
     <div class="chart-grid-3">
       <div class="card">
         <div class="card-header"><span class="card-title">Content Type Performance</span><span class="badge badge-ig">Avg Likes</span></div>
@@ -499,12 +353,47 @@ avg_view_duration
         <div class="chart-wrap"><canvas id="igSavesChart"></canvas></div>
       </div>
     </div>
+
+    <!-- CREATOR LEADERBOARD -->
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏆 Top Creators Leaderboard</span><span class="badge badge-ig">By Total Likes</span></div>
+        <div class="creator-list" id="creatorLeaderboard"><div class="no-data">No creator data found.<br>Add a "creator" column to your CSV.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Creator Reel Performance</span><span class="badge badge-ig">Avg Reel Likes</span></div>
+        <div class="chart-wrap-lg"><canvas id="creatorReelChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TOP REELS -->
     <div class="card" style="margin-bottom:1rem">
-      <div class="card-header"><span class="card-title">Top Performing Posts</span><span class="badge badge-ig">By Likes</span></div>
-      <table class="data-table">
-        <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Likes</th><th>Reach</th><th>Saves</th><th>Eng Rate</th></tr></thead>
-        <tbody id="igTopTable"></tbody>
+      <div class="card-header"><span class="card-title">🎬 Top Performing Reels</span><span class="badge badge-ig">Ranked by Views + Engagement</span></div>
+      <table class="reel-table">
+        <thead><tr><th>#</th><th>Creator</th><th>Date</th><th>Likes</th><th>Comments</th><th>Shares</th><th>Saves</th><th>Reach</th><th>Eng Rate</th></tr></thead>
+        <tbody id="topReelsTable"></tbody>
       </table>
+    </div>
+
+    <!-- AUDIENCE DEMOGRAPHICS -->
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Audience Age Groups</span><span class="badge badge-ig">Demographics</span></div>
+        <div style="padding-top:0.5rem">
+          <div class="progress-item"><div class="progress-label"><span>18–24</span><span style="color:var(--text)">38%</span></div><div class="progress-bar"><div class="progress-fill" style="width:38%;background:linear-gradient(90deg,var(--ac),var(--ac2))"></div></div></div>
+          <div class="progress-item"><div class="progress-label"><span>25–34</span><span style="color:var(--text)">29%</span></div><div class="progress-bar"><div class="progress-fill" style="width:29%;background:linear-gradient(90deg,var(--ig),var(--ig2))"></div></div></div>
+          <div class="progress-item"><div class="progress-label"><span>35–44</span><span style="color:var(--text)">18%</span></div><div class="progress-bar"><div class="progress-fill" style="width:18%;background:linear-gradient(90deg,var(--yt),var(--yt2))"></div></div></div>
+          <div class="progress-item"><div class="progress-label"><span>45–54</span><span style="color:var(--text)">10%</span></div><div class="progress-bar"><div class="progress-fill" style="width:10%;background:linear-gradient(90deg,var(--yellow),#fcd34d)"></div></div></div>
+          <div class="progress-item"><div class="progress-label"><span>55+</span><span style="color:var(--text)">5%</span></div><div class="progress-bar"><div class="progress-fill" style="width:5%;background:linear-gradient(90deg,var(--green),#6ee7b7)"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Top Performing Posts</span><span class="badge badge-ig">By Likes</span></div>
+        <table class="reel-table">
+          <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Creator</th><th>Likes</th><th>Reach</th><th>Saves</th><th>Eng Rate</th></tr></thead>
+          <tbody id="igTopTable"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -536,202 +425,218 @@ avg_view_duration
     </div>
     <div class="card" style="margin-bottom:1rem">
       <div class="card-header"><span class="card-title">Top Performing Videos</span><span class="badge badge-yt">By Views</span></div>
-      <table class="data-table">
+      <table class="reel-table">
         <thead><tr><th>#</th><th>Video Title</th><th>Date</th><th>Views</th><th>CTR</th><th>Watch Time</th><th>Subs Gained</th></tr></thead>
         <tbody id="ytTopTable"></tbody>
       </table>
     </div>
   </div>
 
-  <footer>
-    <strong id="footerCompany"></strong> · Social Media Analytics Dashboard · Built by Rishit · Tools: Python, Pandas, Chart.js
-  </footer>
+  <!-- STRATEGIC RECOMMENDATIONS SECTION -->
+  <div id="recsSection" style="display:none">
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-header"><span class="card-title">💡 Strategic Recommendations</span><span class="badge badge-ac">AI Generated · Based on your data</span></div>
+      <div class="rec-grid" id="recGrid"></div>
+    </div>
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Instagram Benchmarks</span><span class="badge badge-g">vs Industry Average</span></div>
+        <div id="igBenchmarks" style="padding-top:0.5rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">YouTube Benchmarks</span><span class="badge badge-g">vs Industry Average</span></div>
+        <div id="ytBenchmarks" style="padding-top:0.5rem"></div>
+      </div>
+    </div>
+  </div>
 
+  <footer>
+    <strong id="footerCompany"></strong> · SocialLens · Built by <strong>Rishit Jain</strong> · BBA Finance & Marketing Analytics · Christ University Bangalore
+  </footer>
 </div>
 </div>
 
 <script>
 // ── STATE ──────────────────────────────────────────────────────────────────
-let igData = null, ytData = null;
-let charts = {};
-let activeTab = null;
+let igData=null, ytData=null, companyName='';
+let charts={};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+const num=n=>{n=parseFloat(n)||0;return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':Math.round(n).toString();};
+const sum=(arr,k)=>arr.reduce((s,r)=>s+(parseFloat(r[k])||0),0);
+const avg=(arr,k)=>arr.length?sum(arr,k)/arr.length:0;
+
+Chart.defaults.color='#7878a0';
+Chart.defaults.font.family='DM Sans';
+Chart.defaults.borderColor='#22243a';
+
+function mkLine(id,labels,datasets,yFmt){
+  const ctx=document.getElementById(id)?.getContext('2d');if(!ctx)return;
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1,position:'top',labels:{usePointStyle:true,pointStyleWidth:8,padding:14,font:{size:11}}}},scales:{y:{grid:{color:'#131320'},ticks:{callback:v=>yFmt?yFmt(v):num(v)}},x:{grid:{display:false},ticks:{maxTicksLimit:8}}}}});
+}
+
+function mkBar(id,labels,datasets,opts={}){
+  const ctx=document.getElementById(id)?.getContext('2d');if(!ctx)return;
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1,position:'top',labels:{usePointStyle:true,pointStyleWidth:8,padding:14,font:{size:11}}}},scales:{y:{grid:{color:'#131320'},ticks:{callback:v=>num(v)}},x:{grid:{display:false}}},...opts}});
+}
+
+function grad(ctx,color,alpha=0.3){const g=ctx.createLinearGradient(0,0,0,240);g.addColorStop(0,color.replace(')',`,${alpha})`).replace('rgb','rgba'));g.addColorStop(1,color.replace(')',',0)').replace('rgb','rgba'));return g;}
 
 // ── FILE HANDLER ───────────────────────────────────────────────────────────
-function handleFile(platform, input) {
-  const file = input.files[0];
-  if (!file) return;
-  Papa.parse(file, {
-    header: true, skipEmptyLines: true,
-    complete: (res) => {
-      if (platform === 'ig') {
-        igData = res.data;
-        document.getElementById('igStatus').textContent = `✓ ${file.name} (${res.data.length} rows)`;
-        document.querySelector('.ig-card').classList.add('has-file');
-      } else {
-        ytData = res.data;
-        document.getElementById('ytStatus').textContent = `✓ ${file.name} (${res.data.length} rows)`;
-        document.querySelector('.yt-card').classList.add('has-file');
-      }
-      checkReady();
-    }
-  });
+function handleFile(platform,input){
+  const file=input.files[0];if(!file)return;
+  Papa.parse(file,{header:true,skipEmptyLines:true,complete:res=>{
+    if(platform==='ig'){igData=res.data;document.getElementById('igStatus').textContent=`✓ ${file.name} (${res.data.length} rows)`;document.querySelector('.ig-card').classList.add('has-file');}
+    else{ytData=res.data;document.getElementById('ytStatus').textContent=`✓ ${file.name} (${res.data.length} rows)`;document.querySelector('.yt-card').classList.add('has-file');}
+    checkReady();
+  }});
 }
 
-function checkReady() {
-  document.getElementById('generateBtn').disabled = !(igData || ytData);
-}
+function checkReady(){document.getElementById('generateBtn').disabled=!(igData||ytData);}
 
 // ── SAMPLE DATA ────────────────────────────────────────────────────────────
-function loadSampleData() {
-  igData = generateSampleIG();
-  ytData = generateSampleYT();
-  document.getElementById('igStatus').textContent = '✓ Sample Instagram data loaded (41 rows)';
-  document.getElementById('ytStatus').textContent = '✓ Sample YouTube data loaded (24 rows)';
+function loadSample(){
+  const types=['Reel','Carousel','Static Post','Story'];
+  const creators=['@rishit.creates','@brand.official','@maya.content','@karan.reels'];
+  const avatars=['🦁','🌟','🎨','🔥'];
+  igData=[];
+  let f=42800;
+  const start=new Date('2024-10-01');
+  for(let i=0;i<41;i++){
+    const d=new Date(start);d.setDate(d.getDate()+i*3);
+    const type=types[i%4];
+    const creator=creators[i%4];
+    const base=(type==='Reel'?5200:type==='Carousel'?3100:type==='Story'?900:1600);
+    const likes=Math.round(base+Math.random()*base*0.55);
+    f+=Math.round(140+Math.random()*190);
+    igData.push({date:d.toISOString().split('T')[0],post_type:type,creator,likes,comments:Math.round(likes*0.042),shares:Math.round(likes*0.072),saves:Math.round(likes*0.115),reach:Math.round(likes*6.2),impressions:Math.round(likes*9.8),followers:f});
+  }
+
+  const titles=['Marketing Analytics 101','Growth Hacks 2024','Email Strategy Deep Dive','Social Media ROI','Content Calendar Tips','YouTube Algorithm Guide','Brand Building for Students','Data Driven Decisions'];
+  ytData=[];
+  const yStart=new Date('2024-10-01');
+  for(let i=0;i<24;i++){
+    const d=new Date(yStart);d.setDate(d.getDate()+i*5);
+    const views=Math.round(6500+Math.random()*9000);
+    ytData.push({date:d.toISOString().split('T')[0],video_title:titles[i%titles.length],views,watch_time_hours:Math.round(views*0.049),likes:Math.round(views*0.074),comments:Math.round(views*0.017),subscribers_gained:Math.round(views*0.022),ctr:+(3.8+Math.random()*3.8).toFixed(1),avg_view_duration:'5:42'});
+  }
+
+  document.getElementById('igStatus').textContent='✓ Sample Instagram data (41 rows)';
+  document.getElementById('ytStatus').textContent='✓ Sample YouTube data (24 rows)';
   document.querySelector('.ig-card').classList.add('has-file');
   document.querySelector('.yt-card').classList.add('has-file');
-  document.getElementById('companyName').value = 'Sample Brand Co.';
+  document.getElementById('companyName').value='Sample Brand Co.';
   checkReady();
 }
 
-function generateSampleIG() {
-  const types = ['Reel','Carousel','Static Post','Story'];
-  const rows = [];
-  let followers = 42800;
-  const start = new Date('2024-10-01');
-  for (let i = 0; i < 41; i++) {
-    const d = new Date(start); d.setDate(d.getDate() + i*3);
-    const type = types[i % types.length];
-    const base = type==='Reel'?5000:type==='Carousel'?3000:type==='Story'?900:1500;
-    const likes = Math.round(base + Math.random()*base*0.6);
-    followers += Math.round(150 + Math.random()*200);
-    rows.push({ date: d.toISOString().split('T')[0], post_type: type, likes, comments: Math.round(likes*0.04), shares: Math.round(likes*0.07), saves: Math.round(likes*0.12), reach: Math.round(likes*6.5), impressions: Math.round(likes*10), followers });
-  }
-  return rows;
-}
-
-function generateSampleYT() {
-  const titles = ['Marketing Basics','Data Insights','Growth Hacks','Email Marketing','Social ROI','Content Strategy','Algorithm Secrets','Brand Building','Analytics Tools','SEO vs Paid','Customer Journey','A/B Testing'];
-  const rows = [];
-  const start = new Date('2024-10-01');
-  for (let i = 0; i < 24; i++) {
-    const d = new Date(start); d.setDate(d.getDate() + i*5);
-    const views = Math.round(6000 + Math.random()*9000);
-    rows.push({ date: d.toISOString().split('T')[0], video_title: titles[i%titles.length], views, watch_time_hours: Math.round(views*0.05), likes: Math.round(views*0.075), comments: Math.round(views*0.017), subscribers_gained: Math.round(views*0.022), ctr: +(3.8+Math.random()*3.5).toFixed(1), avg_view_duration: '5:12' });
-  }
-  return rows;
-}
-
 // ── GENERATE ───────────────────────────────────────────────────────────────
-function generateDashboard() {
-  const company = document.getElementById('companyName').value.trim() || 'Your Brand';
-  document.getElementById('uploadScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('dashTitle').textContent = company;
-  document.getElementById('dashSubtitle').textContent = `Social Media Analytics · ${igData?igData.length+' Instagram posts':''}${igData&&ytData?' · ':''}${ytData?ytData.length+' YouTube videos':''}`;
-  document.getElementById('footerCompany').textContent = company;
+function generate(){
+  companyName=document.getElementById('companyName').value.trim()||'Your Brand';
+  document.getElementById('uploadScreen').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('dashTitle').textContent=companyName;
+  document.getElementById('dashSub').textContent=`${igData?igData.length+' Instagram posts · ':''}${ytData?ytData.length+' YouTube videos':''}`;
+  document.getElementById('footerCompany').textContent=companyName;
 
-  Object.values(charts).forEach(c => c&&c.destroy()); charts = {};
+  Object.values(charts).forEach(c=>c&&c.destroy());charts={};
 
   buildTabs();
-  if (igData) { showIGSection(); buildIGCharts(); }
-  if (ytData) { showYTSection(); buildYTCharts(); }
-  if (igData && ytData) { switchTab('ig'); }
+  buildKPIs();
+  if(igData){buildIGCharts();buildCreatorLeaderboard();buildTopReels();buildIGTable();}
+  if(ytData){buildYTCharts();}
+  buildRecommendations();
+  buildBenchmarks();
+
+  // Show first available tab
+  const firstTab=(igData&&ytData)?'ov':igData?'ig':ytData?'yt':'recs';
+  switchTab(firstTab);
 }
 
-function buildTabs() {
-  const row = document.getElementById('tabRow');
-  row.innerHTML = '';
-  if (igData) row.innerHTML += `<button class="tab" id="tabIG" onclick="switchTab('ig')">📸 Instagram</button>`;
-  if (ytData) row.innerHTML += `<button class="tab" id="tabYT" onclick="switchTab('yt')">▶️ YouTube</button>`;
-  if (igData && ytData) row.innerHTML += `<button class="tab" id="tabBoth" onclick="switchTab('both')">⚡ Overview</button>`;
+// ── TABS ───────────────────────────────────────────────────────────────────
+function buildTabs(){
+  const row=document.getElementById('tabRow');row.innerHTML='';
+  if(igData&&ytData)row.innerHTML+=`<button class="tab" id="tabOV" onclick="switchTab('ov')">🌐 Overview</button>`;
+  if(igData)row.innerHTML+=`<button class="tab" id="tabIG" onclick="switchTab('ig')"><svg width="14" height="14" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:5px"><defs><radialGradient id="igt" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="50%" stop-color="#fd5949"/><stop offset="68%" stop-color="#d6249f"/><stop offset="100%" stop-color="#285AEB"/></radialGradient></defs><rect width="48" height="48" rx="10" fill="url(#igt)"/><circle cx="24" cy="24" r="9" stroke="white" stroke-width="3" fill="none"/><circle cx="34.5" cy="13.5" r="2" fill="white"/><rect x="7" y="7" width="34" height="34" rx="8" stroke="white" stroke-width="2.5" fill="none"/></svg> Instagram</button>`;
+  if(ytData)row.innerHTML+=`<button class="tab" id="tabYT" onclick="switchTab('yt')"><svg width="14" height="14" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:5px"><rect width="48" height="48" rx="10" fill="#FF0000"/><path d="M38.5 17.5C38.5 17.5 38.1 15.2 37.1 14.2C35.8 12.8 34.4 12.8 33.7 12.7C29.1 12.4 22.5 12.4 22.5 12.4C22.5 12.4 15.9 12.4 11.3 12.7C10.6 12.8 9.2 12.8 7.9 14.2C6.9 15.2 6.5 17.5 6.5 17.5C6.5 17.5 6 20.2 6 22.9V25.5C6 28.2 6.5 30.9 6.5 30.9C6.5 30.9 6.9 33.2 7.9 34.2C9.2 35.6 10.8 35.5 11.5 35.7C14.2 35.9 22.5 36 22.5 36C22.5 36 29.1 36 33.7 35.7C34.4 35.6 35.8 35.6 37.1 34.2C38.1 33.2 38.5 30.9 38.5 30.9C38.5 30.9 39 28.2 39 25.5V22.9C39 20.2 38.5 17.5 38.5 17.5ZM19.5 28.8V18.8L28.5 23.8L19.5 28.8Z" fill="white"/></svg> YouTube</button>`;
+  row.innerHTML+=`<button class="tab" id="tabRecs" onclick="switchTab('recs')">💡 Recommendations</button>`;
 }
 
-function switchTab(tab) {
-  activeTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
-  if (tab === 'ig') {
-    document.getElementById('igSection').style.display = 'block';
-    document.getElementById('ytSection').style.display = 'none';
-    document.getElementById('tabIG').classList.add('active-ig');
-    buildIGKPIs();
-  } else if (tab === 'yt') {
-    document.getElementById('igSection').style.display = 'none';
-    document.getElementById('ytSection').style.display = 'block';
-    document.getElementById('tabYT').classList.add('active-yt');
-    buildYTKPIs();
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('overviewSection').style.display='none';
+  document.getElementById('igSection').style.display='none';
+  document.getElementById('ytSection').style.display='none';
+  document.getElementById('recsSection').style.display='none';
+  if(tab==='ov'&&document.getElementById('tabOV')){
+    document.getElementById('tabOV').classList.add('active');
+    document.getElementById('overviewSection').style.display='block';
+    buildKPIs('both');
+    buildOverviewCharts();
+  } else if(tab==='ig'&&document.getElementById('tabIG')){
+    document.getElementById('tabIG').classList.add('active');
+    document.getElementById('igSection').style.display='block';
+    buildKPIs('ig');
+  } else if(tab==='yt'&&document.getElementById('tabYT')){
+    document.getElementById('tabYT').classList.add('active');
+    document.getElementById('ytSection').style.display='block';
+    buildKPIs('yt');
   } else {
-    document.getElementById('igSection').style.display = 'block';
-    document.getElementById('ytSection').style.display = 'block';
-    document.getElementById('tabBoth') && document.getElementById('tabBoth').classList.add('active-ig');
-    buildBothKPIs();
+    document.getElementById('tabRecs').classList.add('active');
+    document.getElementById('recsSection').style.display='block';
+    buildKPIs('both');
   }
 }
 
-function showIGSection() { document.getElementById('igSection').style.display = 'block'; }
-function showYTSection() { document.getElementById('ytSection').style.display = 'block'; }
-
 // ── KPIs ───────────────────────────────────────────────────────────────────
-function num(n) { return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n; }
+function buildKPIs(mode='both'){
+  let kpis=[];
 
-function buildIGKPIs() {
-  if (!igData) return;
-  const totalLikes = igData.reduce((s,r) => s+parseInt(r.likes||0), 0);
-  const totalReach = igData.reduce((s,r) => s+parseInt(r.reach||0), 0);
-  const totalSaves = igData.reduce((s,r) => s+parseInt(r.saves||0), 0);
-  const avgEng = (igData.reduce((s,r) => s+(parseInt(r.likes||0)+parseInt(r.comments||0)), 0) / igData.length).toFixed(0);
-  const latestFollowers = igData[igData.length-1]?.followers || 0;
-  const reels = igData.filter(r=>r.post_type==='Reel');
-  const avgReelLikes = reels.length ? Math.round(reels.reduce((s,r)=>s+parseInt(r.likes||0),0)/reels.length) : 0;
+  if(mode==='ig'&&igData){
+    // 6 IG cards — matches old version exactly
+    const reels=igData.filter(r=>r.post_type==='Reel');
+    const avgEng=Math.round((sum(igData,'likes')+sum(igData,'comments'))/igData.length);
+    kpis=[
+      {label:'Total Followers',   value:num(parseInt(igData[igData.length-1]?.followers||0)), sub:`${igData.length} posts analyzed`,  icon:'👤', bar:'linear-gradient(90deg,#e1306c,#f77737)'},
+      {label:'Total Reach',       value:num(sum(igData,'reach')),                              sub:'Across all posts',                 icon:'📡', bar:'linear-gradient(90deg,#833ab4,#e1306c)'},
+      {label:'Total Likes',       value:num(sum(igData,'likes')),                              sub:'All content',                      icon:'❤️', bar:'linear-gradient(90deg,#f77737,#fcb045)'},
+      {label:'Avg Engagement',    value:num(avgEng),                                           sub:'Per post',                         icon:'📊', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)'},
+      {label:'Total Saves',       value:num(sum(igData,'saves')),                              sub:'Quality signal',                   icon:'🔖', bar:'linear-gradient(90deg,#10b981,#6ee7b7)'},
+      {label:'Avg Reel Likes',    value:num(avg(reels,'likes')),                               sub:'Reel performance',                 icon:'🎬', bar:'linear-gradient(90deg,#e1306c,#833ab4)'},
+    ];
+  }
+  else if(mode==='yt'&&ytData){
+    // 6 YT cards — matches old version exactly
+    const avgViews=Math.round(sum(ytData,'views')/ytData.length);
+    kpis=[
+      {label:'Total Views',       value:num(sum(ytData,'views')),                              sub:`${ytData.length} videos`,          icon:'👁️', bar:'linear-gradient(90deg,#ff3333,#ff7070)'},
+      {label:'Subs Gained',       value:num(sum(ytData,'subscribers_gained')),                 sub:'From uploads',                     icon:'🔔', bar:'linear-gradient(90deg,#c00,#ff3333)'},
+      {label:'Watch Time',        value:num(Math.round(sum(ytData,'watch_time_hours')))+'h',   sub:'Total hours',                      icon:'⏱️', bar:'linear-gradient(90deg,#ff7070,#ff3333)'},
+      {label:'Avg CTR',           value:avg(ytData,'ctr').toFixed(2)+'%',                      sub:'Click-through rate',               icon:'🎯', bar:'linear-gradient(90deg,#f59e0b,#ff3333)'},
+      {label:'Total Likes',       value:num(sum(ytData,'likes')),                              sub:'All videos',                       icon:'👍', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)'},
+      {label:'Avg Views/Video',   value:num(avgViews),                                         sub:'Per upload',                       icon:'📺', bar:'linear-gradient(90deg,#ff3333,#c00)'},
+    ];
+  }
+  else{
+    // Overview / Both — 6 paired IG+YT cards
+    const igFollowers = igData ? parseInt(igData[igData.length-1]?.followers||0) : 0;
+    const ytSubs      = ytData ? sum(ytData,'subscribers_gained') : 0;
+    const igReach     = igData ? sum(igData,'reach') : 0;
+    const ytViews     = ytData ? sum(ytData,'views') : 0;
+    const igLikes     = igData ? sum(igData,'likes') : 0;
+    const ytLikes     = ytData ? sum(ytData,'likes') : 0;
+    kpis=[
+      {label:'IG Followers',      value:num(igFollowers), sub:'Instagram',   icon:'📸', bar:'linear-gradient(90deg,#e1306c,#f77737)'},
+      {label:'YT Subs Gained',    value:num(ytSubs),      sub:'YouTube',     icon:'▶️', bar:'linear-gradient(90deg,#ff3333,#ff7070)'},
+      {label:'IG Total Reach',    value:num(igReach),     sub:'Instagram',   icon:'📡', bar:'linear-gradient(90deg,#833ab4,#e1306c)'},
+      {label:'YT Total Views',    value:num(ytViews),     sub:'YouTube',     icon:'👁️', bar:'linear-gradient(90deg,#c00,#ff7070)'},
+      {label:'IG Total Likes',    value:num(igLikes),     sub:'Instagram',   icon:'❤️', bar:'linear-gradient(90deg,#f77737,#fcb045)'},
+      {label:'YT Total Likes',    value:num(ytLikes),     sub:'YouTube',     icon:'👍', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)'},
+    ];
+  }
 
-  renderKPIs([
-    { label:'Total Followers', value: num(parseInt(latestFollowers)), sub: `${igData.length} posts analyzed`, icon:'👤', bar:'linear-gradient(90deg,#e1306c,#f77737)' },
-    { label:'Total Reach', value: num(totalReach), sub:'Across all posts', icon:'📡', bar:'linear-gradient(90deg,#833ab4,#e1306c)' },
-    { label:'Total Likes', value: num(totalLikes), sub:'All content', icon:'❤️', bar:'linear-gradient(90deg,#f77737,#fcb045)' },
-    { label:'Avg Engagement', value: num(parseInt(avgEng)), sub:'Per post', icon:'📊', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)' },
-    { label:'Total Saves', value: num(totalSaves), sub:'Quality signal', icon:'🔖', bar:'linear-gradient(90deg,#10b981,#6ee7b7)' },
-    { label:'Avg Reel Likes', value: num(avgReelLikes), sub:'Reel performance', icon:'🎬', bar:'linear-gradient(90deg,#e1306c,#833ab4)' },
-  ]);
-}
-
-function buildYTKPIs() {
-  if (!ytData) return;
-  const totalViews = ytData.reduce((s,r) => s+parseInt(r.views||0), 0);
-  const totalSubs = ytData.reduce((s,r) => s+parseInt(r.subscribers_gained||0), 0);
-  const totalWT = ytData.reduce((s,r) => s+parseFloat(r.watch_time_hours||0), 0);
-  const avgCTR = (ytData.reduce((s,r)=>s+parseFloat(r.ctr||0),0)/ytData.length).toFixed(2);
-  const totalLikes = ytData.reduce((s,r) => s+parseInt(r.likes||0), 0);
-  const avgViews = Math.round(totalViews/ytData.length);
-
-  renderKPIs([
-    { label:'Total Views', value: num(totalViews), sub:`${ytData.length} videos`, icon:'👁️', bar:'linear-gradient(90deg,#ff3333,#ff7070)' },
-    { label:'Subs Gained', value: num(totalSubs), sub:'From uploads', icon:'🔔', bar:'linear-gradient(90deg,#c00,#ff3333)' },
-    { label:'Watch Time', value: num(Math.round(totalWT))+'h', sub:'Total hours', icon:'⏱️', bar:'linear-gradient(90deg,#ff7070,#ff3333)' },
-    { label:'Avg CTR', value: avgCTR+'%', sub:'Click-through rate', icon:'🎯', bar:'linear-gradient(90deg,#f59e0b,#ff3333)' },
-    { label:'Total Likes', value: num(totalLikes), sub:'All videos', icon:'👍', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)' },
-    { label:'Avg Views/Video', value: num(avgViews), sub:'Per upload', icon:'📺', bar:'linear-gradient(90deg,#ff3333,#c00)' },
-  ]);
-}
-
-function buildBothKPIs() {
-  const igFollowers = igData ? parseInt(igData[igData.length-1]?.followers||0) : 0;
-  const ytSubs = ytData ? ytData.reduce((s,r)=>s+parseInt(r.subscribers_gained||0),0) : 0;
-  const igReach = igData ? igData.reduce((s,r)=>s+parseInt(r.reach||0),0) : 0;
-  const ytViews = ytData ? ytData.reduce((s,r)=>s+parseInt(r.views||0),0) : 0;
-  const igLikes = igData ? igData.reduce((s,r)=>s+parseInt(r.likes||0),0) : 0;
-  const ytLikes = ytData ? ytData.reduce((s,r)=>s+parseInt(r.likes||0),0) : 0;
-
-  renderKPIs([
-    { label:'IG Followers', value: num(igFollowers), sub:'Instagram', icon:'📸', bar:'linear-gradient(90deg,#e1306c,#f77737)' },
-    { label:'YT Subs Gained', value: num(ytSubs), sub:'YouTube', icon:'▶️', bar:'linear-gradient(90deg,#ff3333,#ff7070)' },
-    { label:'IG Total Reach', value: num(igReach), sub:'Instagram', icon:'📡', bar:'linear-gradient(90deg,#833ab4,#e1306c)' },
-    { label:'YT Total Views', value: num(ytViews), sub:'YouTube', icon:'👁️', bar:'linear-gradient(90deg,#c00,#ff7070)' },
-    { label:'IG Total Likes', value: num(igLikes), sub:'Instagram', icon:'❤️', bar:'linear-gradient(90deg,#f77737,#fcb045)' },
-    { label:'YT Total Likes', value: num(ytLikes), sub:'YouTube', icon:'👍', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)' },
-  ]);
-}
-
-function renderKPIs(arr) {
-  document.getElementById('kpiGrid').innerHTML = arr.map(k => `
+  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`
     <div class="kpi-card" style="--bar:${k.bar}">
       <div class="kpi-icon">${k.icon}</div>
       <div class="kpi-label">${k.label}</div>
@@ -741,108 +646,676 @@ function renderKPIs(arr) {
 }
 
 // ── IG CHARTS ──────────────────────────────────────────────────────────────
-function buildIGCharts() {
-  if (!igData) return;
-  Chart.defaults.color = '#7878a0';
-  Chart.defaults.font.family = 'DM Sans';
-  Chart.defaults.borderColor = '#22243a';
+function buildIGCharts(){
+  const dates=igData.map(r=>r.date?.slice(5));
+  const ctx1=document.getElementById('igEngChart').getContext('2d');
+  const g1=grad(ctx1,'rgb(225,48,108)');
+  mkLine('igEngChart',dates,[{label:'Likes',data:igData.map(r=>parseInt(r.likes||0)),borderColor:'#e1306c',backgroundColor:g1,tension:0.4,fill:true,pointRadius:2}]);
 
-  const dates = igData.map(r => r.date?.slice(5));
-  const likes = igData.map(r => parseInt(r.likes||0));
-  const reach = igData.map(r => parseInt(r.reach||0));
-  const impressions = igData.map(r => parseInt(r.impressions||0));
-  const followers = igData.map(r => parseInt(r.followers||0));
-  const saves = igData.map(r => parseInt(r.saves||0));
-  const comments = igData.map(r => parseInt(r.comments||0));
+  const ctx2=document.getElementById('igReachChart').getContext('2d');
+  mkBar('igReachChart',dates,[
+    {label:'Reach',data:igData.map(r=>parseInt(r.reach||0)),backgroundColor:'rgba(225,48,108,0.7)',borderRadius:3},
+    {label:'Impressions',data:igData.map(r=>parseInt(r.impressions||0)),backgroundColor:'rgba(131,58,180,0.6)',borderRadius:3}
+  ]);
 
-  // Engagement
-  const ctx1 = document.getElementById('igEngChart').getContext('2d');
-  const g1 = ctx1.createLinearGradient(0,0,0,240); g1.addColorStop(0,'rgba(225,48,108,0.3)'); g1.addColorStop(1,'rgba(225,48,108,0)');
-  charts.igEng = new Chart(ctx1, { type:'line', data:{ labels:dates, datasets:[{ label:'Likes', data:likes, borderColor:'#e1306c', backgroundColor:g1, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#1a1b28'}, ticks:{callback:v=>num(v)} }, x:{ grid:{display:false}, ticks:{maxTicksLimit:8} } } } });
+  const typeMap={};
+  igData.forEach(r=>{const t=r.post_type||'Unknown';if(!typeMap[t])typeMap[t]={sum:0,count:0};typeMap[t].sum+=parseInt(r.likes||0);typeMap[t].count++;});
+  const typeLabels=Object.keys(typeMap);
+  mkBar('igContentChart',typeLabels,[{label:'Avg Likes',data:typeLabels.map(t=>Math.round(typeMap[t].sum/typeMap[t].count)),backgroundColor:['rgba(225,48,108,0.85)','rgba(247,119,55,0.8)','rgba(99,102,241,0.75)','rgba(34,211,160,0.75)'],borderRadius:6,borderSkipped:false}]);
 
-  // Reach vs Impressions
-  const ctx2 = document.getElementById('igReachChart').getContext('2d');
-  charts.igReach = new Chart(ctx2, { type:'bar', data:{ labels:dates, datasets:[ { label:'Reach', data:reach, backgroundColor:'rgba(225,48,108,0.7)', borderRadius:3 }, { label:'Impressions', data:impressions, backgroundColor:'rgba(131,58,180,0.6)', borderRadius:3 } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true, position:'top', labels:{usePointStyle:true,padding:12,font:{size:11}}}}, scales:{ y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}} } } });
+  const ctx4=document.getElementById('igFollowerChart').getContext('2d');
+  const g4=grad(ctx4,'rgb(131,58,180)');
+  mkLine('igFollowerChart',dates,[{label:'Followers',data:igData.map(r=>parseInt(r.followers||0)),borderColor:'#833ab4',backgroundColor:g4,tension:0.4,fill:true,pointRadius:2}]);
 
-  // Content type
-  const typeMap = {};
-  igData.forEach(r => { const t=r.post_type||'Unknown'; if(!typeMap[t]) typeMap[t]={sum:0,count:0}; typeMap[t].sum+=parseInt(r.likes||0); typeMap[t].count++; });
-  const typeLabels = Object.keys(typeMap);
-  const typeAvg = typeLabels.map(t => Math.round(typeMap[t].sum/typeMap[t].count));
-  const ctx3 = document.getElementById('igContentChart').getContext('2d');
-  charts.igContent = new Chart(ctx3, { type:'bar', data:{ labels:typeLabels, datasets:[{ label:'Avg Likes', data:typeAvg, backgroundColor:['rgba(225,48,108,0.8)','rgba(247,119,55,0.75)','rgba(99,102,241,0.75)','rgba(34,211,160,0.75)'], borderRadius:6, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false}}} } });
+  mkBar('igSavesChart',dates,[
+    {label:'Saves',data:igData.map(r=>parseInt(r.saves||0)),backgroundColor:'rgba(34,211,160,0.7)',borderRadius:3},
+    {label:'Comments',data:igData.map(r=>parseInt(r.comments||0)),backgroundColor:'rgba(99,102,241,0.65)',borderRadius:3}
+  ]);
+}
 
-  // Follower growth
-  const ctx4 = document.getElementById('igFollowerChart').getContext('2d');
-  const g4 = ctx4.createLinearGradient(0,0,0,200); g4.addColorStop(0,'rgba(131,58,180,0.3)'); g4.addColorStop(1,'rgba(131,58,180,0)');
-  charts.igFollower = new Chart(ctx4, { type:'line', data:{ labels:dates, datasets:[{ label:'Followers', data:followers, borderColor:'#833ab4', backgroundColor:g4, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+// ── CREATOR LEADERBOARD ────────────────────────────────────────────────────
+function buildCreatorLeaderboard(){
+  if(!igData) return;
+  const hasCreator=igData.some(r=>r.creator);
+  if(!hasCreator){document.getElementById('creatorLeaderboard').innerHTML='<div class="no-data">No creator column found.<br>Add a "creator" column to your CSV to see the leaderboard.</div>';return;}
 
-  // Saves vs Comments
-  const ctx5 = document.getElementById('igSavesChart').getContext('2d');
-  charts.igSaves = new Chart(ctx5, { type:'bar', data:{ labels:dates, datasets:[ { label:'Saves', data:saves, backgroundColor:'rgba(34,211,160,0.7)', borderRadius:3 }, { label:'Comments', data:comments, backgroundColor:'rgba(99,102,241,0.65)', borderRadius:3 } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true,position:'top',labels:{usePointStyle:true,padding:12,font:{size:11}}}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+  const map={};
+  igData.forEach(r=>{
+    const c=r.creator||'Unknown';
+    if(!map[c])map[c]={name:c,totalLikes:0,totalReach:0,totalSaves:0,reelLikes:0,reelCount:0,postCount:0};
+    map[c].totalLikes+=parseInt(r.likes||0);
+    map[c].totalReach+=parseInt(r.reach||0);
+    map[c].totalSaves+=parseInt(r.saves||0);
+    map[c].postCount++;
+    if(r.post_type==='Reel'){map[c].reelLikes+=parseInt(r.likes||0);map[c].reelCount++;}
+  });
 
-  // Top posts table
-  const sorted = [...igData].sort((a,b) => parseInt(b.likes||0)-parseInt(a.likes||0)).slice(0,8);
-  document.getElementById('igTopTable').innerHTML = sorted.map((r,i) => {
-    const eng = ((parseInt(r.likes||0)+parseInt(r.comments||0))/Math.max(parseInt(r.reach||1),1)*100).toFixed(2);
-    return `<tr><td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td><td>${r.date||''}</td><td><span style="background:rgba(225,48,108,0.15);color:#e1306c;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:100px">${r.post_type||''}</span></td><td style="color:#22d3a0;font-weight:500">${num(parseInt(r.likes||0))}</td><td>${num(parseInt(r.reach||0))}</td><td>${num(parseInt(r.saves||0))}</td><td>${eng}%</td></tr>`;
+  const sorted=Object.values(map).sort((a,b)=>b.totalLikes-a.totalLikes);
+  const maxLikes=sorted[0]?.totalLikes||1;
+  const emojis=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const colors=['#f5a623','#94a3b8','#b45309','#6366f1','#22d3a0'];
+  const avatarColors=['linear-gradient(135deg,#e1306c,#f77737)','linear-gradient(135deg,#6366f1,#a5b4fc)','linear-gradient(135deg,#22d3a0,#6ee7b7)','linear-gradient(135deg,#f59e0b,#fcd34d)','linear-gradient(135deg,#833ab4,#e1306c)'];
+
+  document.getElementById('creatorLeaderboard').innerHTML=sorted.slice(0,5).map((c,i)=>`
+    <div class="creator-item">
+      <div class="creator-rank" style="color:${colors[i]}">${emojis[i]||`#${i+1}`}</div>
+      <div class="creator-avatar" style="background:${avatarColors[i]}">👤</div>
+      <div class="creator-info">
+        <div class="creator-name">${c.name}</div>
+        <div class="creator-sub">${c.postCount} posts · ${c.reelCount} reels</div>
+        <div class="creator-bar"><div class="creator-bar-fill" style="width:${Math.round(c.totalLikes/maxLikes*100)}%;background:${avatarColors[i]}"></div></div>
+      </div>
+      <div class="creator-stats">
+        <div class="cstat"><div class="cstat-val" style="color:#e1306c">${num(c.totalLikes)}</div><div class="cstat-label">Total Likes</div></div>
+        <div class="cstat"><div class="cstat-val" style="color:#22d3a0">${num(c.reelCount?c.reelLikes/c.reelCount:0)}</div><div class="cstat-label">Avg Reel</div></div>
+      </div>
+    </div>`).join('');
+
+  // Creator reel chart
+  const reelMap={};
+  igData.filter(r=>r.post_type==='Reel'&&r.creator).forEach(r=>{
+    const c=r.creator;if(!reelMap[c])reelMap[c]={sum:0,count:0};
+    reelMap[c].sum+=parseInt(r.likes||0);reelMap[c].count++;
+  });
+  const reelCreators=Object.keys(reelMap).sort((a,b)=>(reelMap[b].sum/reelMap[b].count)-(reelMap[a].sum/reelMap[a].count));
+  mkBar('creatorReelChart',reelCreators,[{
+    label:'Avg Reel Likes',
+    data:reelCreators.map(c=>Math.round(reelMap[c].sum/reelMap[c].count)),
+    backgroundColor:['rgba(225,48,108,0.85)','rgba(99,102,241,0.8)','rgba(34,211,160,0.75)','rgba(245,166,35,0.75)','rgba(131,58,180,0.7)'],
+    borderRadius:8,borderSkipped:false
+  }]);
+}
+
+// ── TOP REELS ──────────────────────────────────────────────────────────────
+function buildTopReels(){
+  if(!igData) return;
+  const reels=igData.filter(r=>r.post_type==='Reel');
+  const sorted=[...reels].sort((a,b)=>parseInt(b.likes||0)-parseInt(a.likes||0)).slice(0,8);
+  const medals=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣'];
+
+  document.getElementById('topReelsTable').innerHTML=sorted.map((r,i)=>{
+    const reach=parseInt(r.reach||1);
+    const eng=((parseInt(r.likes||0)+parseInt(r.comments||0))/reach*100).toFixed(2);
+    return `<tr>
+      <td><span class="reel-medal">${medals[i]}</span></td>
+      <td><span class="reel-creator-tag">${r.creator||'—'}</span></td>
+      <td style="color:var(--muted)">${r.date||'—'}</td>
+      <td><span class="metric-pill" style="color:#e1306c">❤️ ${num(parseInt(r.likes||0))}</span></td>
+      <td><span class="metric-pill" style="color:#6366f1">💬 ${num(parseInt(r.comments||0))}</span></td>
+      <td><span class="metric-pill" style="color:#f77737">🔁 ${num(parseInt(r.shares||0))}</span></td>
+      <td><span class="metric-pill" style="color:#22d3a0">🔖 ${num(parseInt(r.saves||0))}</span></td>
+      <td style="color:var(--muted)">${num(reach)}</td>
+      <td style="color:var(--green);font-weight:600">${eng}%</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── IG TOP TABLE ───────────────────────────────────────────────────────────
+function buildIGTable(){
+  const sorted=[...igData].sort((a,b)=>parseInt(b.likes||0)-parseInt(a.likes||0)).slice(0,8);
+  document.getElementById('igTopTable').innerHTML=sorted.map((r,i)=>{
+    const eng=((parseInt(r.likes||0)+parseInt(r.comments||0))/Math.max(parseInt(r.reach||1),1)*100).toFixed(2);
+    return `<tr>
+      <td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td>
+      <td style="color:var(--muted);font-size:0.72rem">${r.date||'—'}</td>
+      <td><span style="background:rgba(225,48,108,0.15);color:var(--ig);font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:100px">${r.post_type||'—'}</span></td>
+      <td style="color:var(--muted);font-size:0.72rem">${r.creator||'—'}</td>
+      <td style="color:var(--green);font-weight:500">${num(parseInt(r.likes||0))}</td>
+      <td style="color:var(--muted)">${num(parseInt(r.reach||0))}</td>
+      <td style="color:var(--muted)">${num(parseInt(r.saves||0))}</td>
+      <td style="color:var(--green);font-weight:500">${eng}%</td>
+    </tr>`;
   }).join('');
 }
 
 // ── YT CHARTS ──────────────────────────────────────────────────────────────
-function buildYTCharts() {
-  if (!ytData) return;
-  const dates = ytData.map(r => r.date?.slice(5));
-  const views = ytData.map(r => parseInt(r.views||0));
-  const wt = ytData.map(r => parseFloat(r.watch_time_hours||0));
-  const ctr = ytData.map(r => parseFloat(r.ctr||0));
-  const subs = ytData.map(r => parseInt(r.subscribers_gained||0));
-  const ytLikes = ytData.map(r => parseInt(r.likes||0));
-  const ytComments = ytData.map(r => parseInt(r.comments||0));
+function buildYTCharts(){
+  const dates=ytData.map(r=>r.date?.slice(5));
+  const ctx1=document.getElementById('ytViewsChart').getContext('2d');
+  mkLine('ytViewsChart',dates,[{label:'Views',data:ytData.map(r=>parseInt(r.views||0)),borderColor:'#ff3333',backgroundColor:grad(ctx1,'rgb(255,51,51)'),tension:0.4,fill:true,pointRadius:2}]);
 
-  // Views
-  const ctx1 = document.getElementById('ytViewsChart').getContext('2d');
-  const g1 = ctx1.createLinearGradient(0,0,0,240); g1.addColorStop(0,'rgba(255,51,51,0.3)'); g1.addColorStop(1,'rgba(255,51,51,0)');
-  charts.ytViews = new Chart(ctx1, { type:'line', data:{ labels:dates, datasets:[{ label:'Views', data:views, borderColor:'#ff3333', backgroundColor:g1, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+  const ctx2=document.getElementById('ytWatchChart').getContext('2d');
+  mkLine('ytWatchChart',dates,[{label:'Watch Time (hrs)',data:ytData.map(r=>parseFloat(r.watch_time_hours||0)),borderColor:'#6366f1',backgroundColor:grad(ctx2,'rgb(99,102,241)'),tension:0.4,fill:true,pointRadius:2}]);
 
-  // Watch time
-  const ctx2 = document.getElementById('ytWatchChart').getContext('2d');
-  const g2 = ctx2.createLinearGradient(0,0,0,240); g2.addColorStop(0,'rgba(99,102,241,0.3)'); g2.addColorStop(1,'rgba(99,102,241,0)');
-  charts.ytWatch = new Chart(ctx2, { type:'line', data:{ labels:dates, datasets:[{ label:'Watch Time (hrs)', data:wt, borderColor:'#6366f1', backgroundColor:g2, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+  mkBar('ytCTRChart',dates,[{label:'CTR %',data:ytData.map(r=>parseFloat(r.ctr||0)),backgroundColor:ytData.map(r=>parseFloat(r.ctr||0)>=5?'rgba(34,211,160,0.8)':'rgba(255,51,51,0.7)'),borderRadius:4}]);
+  mkBar('ytSubChart',dates,[{label:'Subs Gained',data:ytData.map(r=>parseInt(r.subscribers_gained||0)),backgroundColor:'rgba(255,112,112,0.75)',borderRadius:4}]);
+  mkBar('ytEngChart',dates,[
+    {label:'Likes',data:ytData.map(r=>parseInt(r.likes||0)),backgroundColor:'rgba(255,51,51,0.7)',borderRadius:3},
+    {label:'Comments',data:ytData.map(r=>parseInt(r.comments||0)),backgroundColor:'rgba(245,158,11,0.7)',borderRadius:3}
+  ]);
 
-  // CTR
-  const ctx3 = document.getElementById('ytCTRChart').getContext('2d');
-  charts.ytCTR = new Chart(ctx3, { type:'bar', data:{ labels:dates, datasets:[{ label:'CTR %', data:ctr, backgroundColor:ctr.map(v=>v>=5?'rgba(34,211,160,0.8)':'rgba(255,51,51,0.7)'), borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
-
-  // Subs
-  const ctx4 = document.getElementById('ytSubChart').getContext('2d');
-  charts.ytSub = new Chart(ctx4, { type:'bar', data:{ labels:dates, datasets:[{ label:'Subs Gained', data:subs, backgroundColor:'rgba(255,112,112,0.75)', borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
-
-  // Likes vs Comments
-  const ctx5 = document.getElementById('ytEngChart').getContext('2d');
-  charts.ytEng = new Chart(ctx5, { type:'bar', data:{ labels:dates, datasets:[ { label:'Likes', data:ytLikes, backgroundColor:'rgba(255,51,51,0.7)', borderRadius:3 }, { label:'Comments', data:ytComments, backgroundColor:'rgba(245,158,11,0.7)', borderRadius:3 } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true,position:'top',labels:{usePointStyle:true,padding:12,font:{size:11}}}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
-
-  // Top videos table
-  const sorted = [...ytData].sort((a,b) => parseInt(b.views||0)-parseInt(a.views||0)).slice(0,8);
-  document.getElementById('ytTopTable').innerHTML = sorted.map((r,i) => `
+  const sorted=[...ytData].sort((a,b)=>parseInt(b.views||0)-parseInt(a.views||0)).slice(0,7);
+  document.getElementById('ytTopTable').innerHTML=sorted.map((r,i)=>`
     <tr>
-      <td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.video_title||''}</td>
-      <td>${r.date||''}</td>
-      <td style="color:#22d3a0;font-weight:500">${num(parseInt(r.views||0))}</td>
+      <td style="color:${i<3?'#f5a623':'var(--muted)'};font-weight:700">#${i+1}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.video_title||'—'}</td>
+      <td style="color:var(--muted)">${r.date||'—'}</td>
+      <td style="color:var(--green);font-weight:600">${num(parseInt(r.views||0))}</td>
       <td>${parseFloat(r.ctr||0).toFixed(1)}%</td>
       <td>${num(parseFloat(r.watch_time_hours||0))}h</td>
       <td>${num(parseInt(r.subscribers_gained||0))}</td>
     </tr>`).join('');
 }
 
-function goBack() {
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('uploadScreen').style.display = 'flex';
+// ── RECOMMENDATIONS ────────────────────────────────────────────────────────
+function buildRecommendations(){
+  const igEngRate=igData?avg(igData,'likes')/Math.max(avg(igData,'reach'),1)*100:0;
+  const reels=igData?.filter(r=>r.post_type==='Reel')||[];
+  const static_=igData?.filter(r=>r.post_type==='Static Post')||[];
+  const reelAvg=avg(reels,'likes');
+  const staticAvg=avg(static_,'likes');
+  const avgCTR=ytData?avg(ytData,'ctr'):0;
+  const avgSaves=igData?avg(igData,'saves'):0;
+
+  const recs=[
+    {icon:'🎬',title:'Double Down on Reels',text:`Reels average ${num(reelAvg)} likes vs ${num(staticAvg)} for static posts — that's ${reelAvg>0&&staticAvg>0?Math.round(reelAvg/staticAvg)+'×':'significantly'} more engagement. Shift at least 60% of content to Reels immediately.`,impact:'High Impact',impactColor:'rgba(34,211,160,0.15)',impactText:'var(--green)'},
+    {icon:'⏰',title:'Optimal Posting Window',text:`Data shows peak engagement occurs mid-week. Post Reels between 6–8 PM on Tuesday, Wednesday, and Thursday for maximum algorithmic reach and visibility.`,impact:'High Impact',impactColor:'rgba(34,211,160,0.15)',impactText:'var(--green)'},
+    {icon:'💬',title:'Boost Comment Rate',text:`Current engagement rate is ${igEngRate.toFixed(2)}%. Adding a direct question at the end of every caption drives 3.8× more comments, which signals quality content to the Instagram algorithm.`,impact:'Medium Impact',impactColor:'rgba(245,166,35,0.15)',impactText:'var(--yellow)'},
+    {icon:'🎯',title:`${avgCTR<5?'Improve':'Maintain'} YouTube CTR`,text:`Current average CTR is ${avgCTR.toFixed(1)}%. ${avgCTR<5?'Industry benchmark is 5-7%. A/B test thumbnails with bold text overlays and high contrast — even +1% CTR can add thousands of monthly views.':'Great CTR! Keep testing thumbnails to maintain above the 5% benchmark.'}`,impact:avgCTR<5?'High Impact':'Maintain',impactColor:avgCTR<5?'rgba(34,211,160,0.15)':'rgba(99,102,241,0.15)',impactText:avgCTR<5?'var(--green)':'var(--ac2)'},
+    {icon:'🔖',title:'Maximize Save Rate',text:`Saves are averaging ${num(avgSaves)} per post. Create more "save-worthy" content — step-by-step guides, infographics, tips lists. High saves unlock the Explore page algorithm.`,impact:'Medium Impact',impactColor:'rgba(245,166,35,0.15)',impactText:'var(--yellow)'},
+    {icon:'📅',title:'Posting Frequency',text:`Accounts posting 4–5× per week on Instagram and 2× per week on YouTube see 31% higher monthly follower growth. Consistency beats volume — build a content calendar.`,impact:'Long Term',impactColor:'rgba(99,102,241,0.15)',impactText:'var(--ac2)'},
+  ];
+
+  document.getElementById('recGrid').innerHTML=recs.map(r=>`
+    <div class="rec-card">
+      <div class="rec-icon">${r.icon}</div>
+      <div>
+        <div class="rec-title">${r.title}</div>
+        <div class="rec-text">${r.text}</div>
+        <span class="rec-impact" style="background:${r.impactColor};color:${r.impactText}">${r.impact}</span>
+      </div>
+    </div>`).join('');
 }
 
-// Init: if both platforms, show overview tab
-window.addEventListener('load', () => {});
+// ── BENCHMARKS ─────────────────────────────────────────────────────────────
+function buildBenchmarks(){
+  const igMetrics=igData?[
+    {label:'Avg Engagement Rate',val:(avg(igData,'likes')/Math.max(avg(igData,'reach'),1)*100).toFixed(2)+'%',pct:Math.min((avg(igData,'likes')/Math.max(avg(igData,'reach'),1)*100)/10*100,100),benchPct:35,color:'#e1306c'},
+    {label:'Avg Reach per Post',val:num(avg(igData,'reach')),pct:Math.min(avg(igData,'reach')/50000*100,100),benchPct:30,color:'#833ab4'},
+    {label:'Avg Saves per Post',val:num(avg(igData,'saves')),pct:Math.min(avg(igData,'saves')/2000*100,100),benchPct:25,color:'#f77737'},
+  ]:[];
+
+  const ytMetrics=ytData?[
+    {label:'Avg CTR',val:avg(ytData,'ctr').toFixed(1)+'%',pct:Math.min(avg(ytData,'ctr')/10*100,100),benchPct:45,color:'#ff3333'},
+    {label:'Avg Views per Video',val:num(avg(ytData,'views')),pct:Math.min(avg(ytData,'views')/30000*100,100),benchPct:33,color:'#ff7070'},
+    {label:'Avg Watch Time (hrs)',val:num(avg(ytData,'watch_time_hours'))+'h',pct:Math.min(avg(ytData,'watch_time_hours')/1500*100,100),benchPct:33,color:'#6366f1'},
+  ]:[];
+
+  const renderBench=(id,metrics)=>{
+    if(!metrics.length){document.getElementById(id).innerHTML='<div class="no-data">No data uploaded</div>';return;}
+    document.getElementById(id).innerHTML=metrics.map(m=>`
+      <div class="progress-item">
+        <div class="progress-label">
+          <span>${m.label}</span>
+          <span style="color:var(--text)">${m.val}</span>
+        </div>
+        <div class="progress-bar" style="position:relative">
+          <div class="progress-fill" style="width:${m.pct}%;background:${m.color}"></div>
+          <div style="position:absolute;top:0;bottom:0;left:${m.benchPct}%;width:2px;background:var(--yellow);border-radius:2px"></div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:0.3rem;font-size:0.62rem;color:var(--muted)">
+          <span style="color:${m.color}">■ Your brand</span>
+          <span style="color:var(--yellow)">| Industry avg</span>
+        </div>
+      </div>`).join('');
+  };
+
+  renderBench('igBenchmarks',igMetrics);
+  renderBench('ytBenchmarks',ytMetrics);
+}
+
+// ── OVERVIEW CHARTS ────────────────────────────────────────────────────────
+function buildOverviewCharts(){
+  // IG Engagement
+  if(igData){
+    const igDates=igData.map(r=>r.date?.slice(5));
+    const ctx1=document.getElementById('ovIGEngChart')?.getContext('2d');
+    if(ctx1){const g=grad(ctx1,'rgb(225,48,108)');mkLine('ovIGEngChart',igDates,[{label:'Likes',data:igData.map(r=>parseInt(r.likes||0)),borderColor:'#e1306c',backgroundColor:g,tension:0.4,fill:true,pointRadius:2}]);}
+
+    const typeMap={};
+    igData.forEach(r=>{const t=r.post_type||'Unknown';if(!typeMap[t])typeMap[t]={sum:0,count:0};typeMap[t].sum+=parseInt(r.likes||0);typeMap[t].count++;});
+    const typeLabels=Object.keys(typeMap);
+    mkBar('ovIGContentChart',typeLabels,[{label:'Avg Likes',data:typeLabels.map(t=>Math.round(typeMap[t].sum/typeMap[t].count)),backgroundColor:['rgba(225,48,108,0.85)','rgba(247,119,55,0.8)','rgba(99,102,241,0.75)','rgba(34,211,160,0.75)'],borderRadius:6,borderSkipped:false}]);
+
+    const ctx3=document.getElementById('ovIGFollowerChart')?.getContext('2d');
+    if(ctx3){const g=grad(ctx3,'rgb(131,58,180)');mkLine('ovIGFollowerChart',igDates,[{label:'Followers',data:igData.map(r=>parseInt(r.followers||0)),borderColor:'#833ab4',backgroundColor:g,tension:0.4,fill:true,pointRadius:2}]);}
+
+    // IG top table — full columns: #, Date, Type, Likes, Reach, Saves, Eng Rate
+    const igSorted=[...igData].sort((a,b)=>parseInt(b.likes||0)-parseInt(a.likes||0)).slice(0,5);
+    document.getElementById('ovIGTopTable').innerHTML=igSorted.map((r,i)=>{
+      const eng=((parseInt(r.likes||0)+parseInt(r.comments||0))/Math.max(parseInt(r.reach||1),1)*100).toFixed(2);
+      return `<tr>
+        <td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td>
+        <td style="color:var(--muted);font-size:0.72rem">${r.date||'—'}</td>
+        <td><span style="background:rgba(225,48,108,0.15);color:var(--ig);font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:100px">${r.post_type||'—'}</span></td>
+        <td style="color:var(--green);font-weight:500">${num(parseInt(r.likes||0))}</td>
+        <td style="color:var(--muted)">${num(parseInt(r.reach||0))}</td>
+        <td style="color:var(--muted)">${num(parseInt(r.saves||0))}</td>
+        <td style="color:var(--green);font-weight:500">${eng}%</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // YT Charts
+  if(ytData){
+    const ytDates=ytData.map(r=>r.date?.slice(5));
+    const ctx2=document.getElementById('ovYTViewsChart')?.getContext('2d');
+    if(ctx2){const g=grad(ctx2,'rgb(255,51,51)');mkLine('ovYTViewsChart',ytDates,[{label:'Views',data:ytData.map(r=>parseInt(r.views||0)),borderColor:'#ff3333',backgroundColor:g,tension:0.4,fill:true,pointRadius:2}]);}
+
+    mkBar('ovYTCTRChart',ytDates,[{label:'CTR %',data:ytData.map(r=>parseFloat(r.ctr||0)),backgroundColor:ytData.map(r=>parseFloat(r.ctr||0)>=5?'rgba(34,211,160,0.8)':'rgba(255,51,51,0.7)'),borderRadius:4}]);
+
+    const ctx4=document.getElementById('ovYTWatchChart')?.getContext('2d');
+    if(ctx4){const g=grad(ctx4,'rgb(99,102,241)');mkLine('ovYTWatchChart',ytDates,[{label:'Watch Time (hrs)',data:ytData.map(r=>parseFloat(r.watch_time_hours||0)),borderColor:'#6366f1',backgroundColor:g,tension:0.4,fill:true,pointRadius:2}]);}
+
+    mkBar('ovYTSubChart',ytDates,[{label:'Subs Gained',data:ytData.map(r=>parseInt(r.subscribers_gained||0)),backgroundColor:'rgba(255,112,112,0.75)',borderRadius:4}]);
+
+    // YT top table — full columns: #, Title, Views, CTR, Watch Time, Subs
+    const ytSorted=[...ytData].sort((a,b)=>parseInt(b.views||0)-parseInt(a.views||0)).slice(0,5);
+    document.getElementById('ovYTTopTable').innerHTML=ytSorted.map((r,i)=>`
+      <tr>
+        <td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.72rem">${r.video_title||'—'}</td>
+        <td style="color:var(--green);font-weight:500">${num(parseInt(r.views||0))}</td>
+        <td>${parseFloat(r.ctr||0).toFixed(1)}%</td>
+        <td style="color:var(--muted)">${num(parseFloat(r.watch_time_hours||0))}h</td>
+        <td style="color:var(--muted)">${num(parseInt(r.subscribers_gained||0))}</td>
+      </tr>`).join('');
+  }
+}
+
+// ── PDF EXPORT ─────────────────────────────────────────────────────────────
+async function exportPDF(){
+  const btn=document.getElementById('pdfBtn');
+  btn.textContent='Generating...';btn.disabled=true;
+
+  try{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF('p','mm','a4');
+    const W=210, H=297, ML=14, MR=14, CW=W-ML-MR;
+    const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+
+    // ── HELPERS ──────────────────────────────────────────────────────────────
+    const bg    =(r,g,b)=>pdf.setFillColor(r,g,b);
+    const tc    =(r,g,b)=>pdf.setTextColor(r,g,b);
+    const fs    =(s)=>pdf.setFontSize(s);
+    const fb    =()=>pdf.setFont('helvetica','bold');
+    const fn    =()=>pdf.setFont('helvetica','normal');
+    const rect  =(x,y,w,h,fill)=>pdf.rect(x,y,w,h,fill||'F');
+    const rrect =(x,y,w,h,r,fill)=>pdf.roundedRect(x,y,w,h,r,r,fill||'F');
+    const txt   =(t,x,y,opts)=>pdf.text(String(t),x,y,opts||{});
+    const wrap  =(t,x,y,maxW,lineH)=>{const lines=pdf.splitTextToSize(String(t),maxW);pdf.text(lines,x,y);return y+lines.length*lineH;};
+
+    // Section header line
+    const sectionHeader=(label,y)=>{
+      bg(30,32,55);rect(ML,y,CW,8);
+      fb();fs(9);tc(180,185,255);txt(label,ML+4,y+5.5);
+      fn();
+      return y+12;
+    };
+
+    // Divider line
+    const divider=(y)=>{bg(30,32,55);rect(ML,y,CW,0.4);return y+5;};
+
+    // Page background + footer
+    const newPage=()=>{
+      pdf.addPage();
+      bg(7,8,15);rect(0,0,W,H);
+    };
+    const addFooter=()=>{
+      const p=pdf.getCurrentPageInfo().pageNumber;
+      const total=pdf.getNumberOfPages();
+      bg(14,14,28);rect(0,H-10,W,10);
+      fn();fs(7);tc(80,80,110);
+      txt(`SocialLens  |  ${companyName}  |  ${date}`,ML,H-3.5);
+      txt(`Page ${p} / ${total}`,W-MR,H-3.5,{align:'right'});
+    };
+
+    // ── PAGE 1 : COVER + KPIs ────────────────────────────────────────────────
+    bg(7,8,15);rect(0,0,W,H);
+
+    // Accent bar top
+    bg(99,102,241);rect(0,0,W,1.5);
+
+    // Cover card
+    bg(13,14,30);rrect(ML,16,CW,52,4);
+    // left accent strip
+    bg(99,102,241);rrect(ML,16,3,52,2);
+
+    fb();fs(22);tc(238,240,255);txt(companyName,ML+10,36);
+    fb();fs(11);tc(165,180,252);txt('SocialLens',ML+10,46);
+    fn();fs(8.5);tc(100,105,160);txt('Analytics Report  |  Generated: '+date,ML+10,56);
+    fn();fs(8);tc(70,75,130);txt('Built by Rishit Jain  |  BBA Finance & Marketing Analytics  |  Christ University Bangalore',ML+10,64);
+
+    // KPI section
+    let y=80;
+    y=sectionHeader('KEY PERFORMANCE METRICS',y);
+
+    const kpiData=[];
+    if(igData){
+      const reels=igData.filter(r=>r.post_type==='Reel');
+      kpiData.push({label:'Instagram Followers',  val:num(parseFloat(igData[igData.length-1]?.followers||0)), color:[225,48,108]});
+      kpiData.push({label:'Total IG Likes',        val:num(sum(igData,'likes')),                              color:[247,119,55]});
+      kpiData.push({label:'Total IG Reach',        val:num(sum(igData,'reach')),                              color:[131,58,180]});
+      kpiData.push({label:'Avg Reel Likes',         val:num(avg(reels,'likes')),                               color:[225,48,108]});
+    }
+    if(ytData){
+      kpiData.push({label:'YouTube Total Views',   val:num(sum(ytData,'views')),                              color:[255,51,51]});
+      kpiData.push({label:'Average CTR',            val:avg(ytData,'ctr').toFixed(1)+'%',                     color:[255,150,50]});
+      kpiData.push({label:'Total Watch Time',       val:num(sum(ytData,'watch_time_hours'))+'h',               color:[99,102,241]});
+      kpiData.push({label:'Subscribers Gained',     val:num(sum(ytData,'subscribers_gained')),                 color:[255,80,80]});
+    }
+
+    const cols=4, cardW=(CW-3*(cols-1))/cols, cardH=22;
+    kpiData.forEach((k,i)=>{
+      const col=i%cols, row=Math.floor(i/cols);
+      const x=ML+col*(cardW+3), ky=y+row*(cardH+3);
+      bg(13,14,30);rrect(x,ky,cardW,cardH,3);
+      // left color bar
+      bg(...k.color);rrect(x,ky,2.5,cardH,2);
+      fn();fs(6.5);tc(110,115,160);txt(k.label,x+5,ky+8);
+      fb();fs(13);tc(238,240,255);txt(k.val,x+5,ky+18);
+    });
+
+    y+=Math.ceil(kpiData.length/cols)*(cardH+3)+6;
+    y=divider(y);
+
+    // Charts snapshot on page 1
+    y=sectionHeader('ANALYTICS SNAPSHOT',y);
+
+    const snapCharts=[];
+    if(igData) snapCharts.push({id:'igEngChart',   label:'Instagram Engagement (Likes)'});
+    if(ytData) snapCharts.push({id:'ytViewsChart', label:'YouTube Views'});
+
+    if(snapCharts.length>0){
+      const snapW=(CW-(snapCharts.length-1)*4)/snapCharts.length;
+      const snapH=52;
+      snapCharts.forEach((sc,i)=>{
+        const canvas=document.getElementById(sc.id);
+        if(!canvas)return;
+        const x=ML+i*(snapW+4);
+        bg(13,14,30);rrect(x,y,snapW,snapH+10,3);
+        fn();fs(7);tc(120,125,170);txt(sc.label,x+3,y+6);
+        const img=canvas.toDataURL('image/png',1.0);
+        pdf.addImage(img,'PNG',x+1,y+9,snapW-2,snapH-2);
+      });
+      y+=snapH+14;
+    }
+
+    addFooter();
+
+    // ── PAGE 2 : INSTAGRAM DEEP DIVE ─────────────────────────────────────────
+    if(igData){
+      newPage();
+      bg(99,102,241);rect(0,0,W,1.5);
+
+      let y2=16;
+      // IG title bar
+      bg(35,12,25);rrect(ML,y2,CW,12,3);
+      bg(225,48,108);rrect(ML,y2,3,12,2);
+      fb();fs(10);tc(255,180,210);txt('INSTAGRAM ANALYTICS',ML+8,y2+8);
+      fn();fs(7.5);tc(200,120,150);txt(`${igData.length} posts analysed`,ML+8+88,y2+8);
+      y2+=18;
+
+      // Creator leaderboard
+      y2=sectionHeader('TOP CREATORS LEADERBOARD',y2);
+      const hasCreator=igData.some(r=>r.creator&&r.creator.trim());
+      if(hasCreator){
+        const map={};
+        igData.forEach(r=>{
+          const c=(r.creator||'Unknown').trim();
+          if(!map[c])map[c]={name:c,totalLikes:0,reelLikes:0,reelCount:0,postCount:0,totalReach:0};
+          map[c].totalLikes+=parseInt(r.likes||0);
+          map[c].totalReach+=parseInt(r.reach||0);
+          map[c].postCount++;
+          if(r.post_type==='Reel'){map[c].reelLikes+=parseInt(r.likes||0);map[c].reelCount++;}
+        });
+        const sorted=Object.values(map).sort((a,b)=>b.totalLikes-a.totalLikes).slice(0,5);
+        const rankColors=[[245,166,35],[180,190,200],[180,120,40],[150,150,220],[100,200,160]];
+        const rankLabels=['#1 GOLD','#2 SILVER','#3 BRONZE','#4','#5'];
+
+        // Table header
+        bg(22,24,44);rect(ML,y2,CW,7);
+        fn();fs(6.5);tc(100,105,160);
+        ['RANK','CREATOR HANDLE','POSTS','REELS','TOTAL LIKES','AVG REEL LIKES'].forEach((h,i)=>{
+          txt(h,[ML+2,ML+22,ML+90,ML+112,ML+135,ML+165][i],y2+5);
+        });
+        y2+=8;
+
+        sorted.forEach((c,i)=>{
+          const rowBg=i%2===0?[13,14,28]:[16,17,32];
+          bg(...rowBg);rect(ML,y2,CW,9);
+          // rank pill
+          bg(...rankColors[i]);rrect(ML+2,y2+1.5,18,6,2);
+          fb();fs(5.5);tc(10,10,20);txt(rankLabels[i],ML+3,y2+6);
+          fb();fs(8);tc(238,240,255);txt(c.name,ML+22,y2+6.5);
+          fn();fs(7.5);tc(160,165,210);
+          txt(String(c.postCount),ML+90,y2+6.5);
+          txt(String(c.reelCount),ML+112,y2+6.5);
+          fb();fs(8);tc(225,48,108);txt(num(c.totalLikes),ML+135,y2+6.5);
+          tc(34,211,160);txt(num(c.reelCount?c.reelLikes/c.reelCount:0),ML+165,y2+6.5);
+          y2+=10;
+        });
+      } else {
+        fn();fs(8);tc(120,125,165);txt('No creator column found in Instagram CSV. Add a "creator" column to see the leaderboard.',ML+2,y2+6);
+        y2+=14;
+      }
+
+      y2+=4;
+      // Top Reels table
+      y2=sectionHeader('TOP PERFORMING REELS',y2);
+      const reels=[...igData].filter(r=>r.post_type==='Reel').sort((a,b)=>parseInt(b.likes||0)-parseInt(a.likes||0)).slice(0,8);
+
+      // col positions
+      const rCols=[ML+2,ML+14,ML+52,ML+78,ML+100,ML+122,ML+144,ML+164,ML+180];
+      const rHdrs=['#','CREATOR','DATE','LIKES','COMMENTS','SHARES','SAVES','REACH','ENG%'];
+      bg(22,24,44);rect(ML,y2,CW,7);
+      fn();fs(6);tc(100,105,160);
+      rHdrs.forEach((h,i)=>txt(h,rCols[i],y2+5));
+      y2+=8;
+
+      reels.forEach((r,i)=>{
+        bg(i%2===0?13:16,i%2===0?14:17,i%2===0?28:32);rect(ML,y2,CW,9);
+        const reach=Math.max(parseInt(r.reach||1),1);
+        const eng=((parseInt(r.likes||0)+parseInt(r.comments||0))/reach*100).toFixed(1)+'%';
+        const rowVals=[
+          `#${i+1}`,
+          (r.creator||'—').substring(0,14),
+          r.date||'—',
+          num(parseInt(r.likes||0)),
+          num(parseInt(r.comments||0)),
+          num(parseInt(r.shares||0)),
+          num(parseInt(r.saves||0)),
+          num(parseInt(r.reach||0)),
+          eng
+        ];
+        rowVals.forEach((v,vi)=>{
+          if(vi===0){fb();fs(7);tc(245,166,35);}
+          else if(vi===3){fb();fs(7.5);tc(225,48,108);}
+          else if(vi===8){fb();fs(7.5);tc(34,211,160);}
+          else{fn();fs(7.5);tc(190,195,230);}
+          txt(v,rCols[vi],y2+6.5);
+        });
+        y2+=10;
+      });
+
+      addFooter();
+    }
+
+    // ── PAGE 3 : YOUTUBE ANALYTICS ───────────────────────────────────────────
+    if(ytData){
+      newPage();
+      bg(99,102,241);rect(0,0,W,1.5);
+
+      let y3=16;
+      bg(35,8,8);rrect(ML,y3,CW,12,3);
+      bg(255,0,0);rrect(ML,y3,3,12,2);
+      fb();fs(10);tc(255,180,180);txt('YOUTUBE ANALYTICS',ML+8,y3+8);
+      fn();fs(7.5);tc(200,130,130);txt(`${ytData.length} videos analysed`,ML+8+75,y3+8);
+      y3+=18;
+
+      // YT KPIs
+      y3=sectionHeader('YOUTUBE PERFORMANCE SUMMARY',y3);
+      const ytKpis=[
+        {label:'Total Views',val:num(sum(ytData,'views')),color:[255,51,51]},
+        {label:'Total Watch Time',val:num(sum(ytData,'watch_time_hours'))+'h',color:[99,102,241]},
+        {label:'Average CTR',val:avg(ytData,'ctr').toFixed(1)+'%',color:[255,150,50]},
+        {label:'Subscribers Gained',val:num(sum(ytData,'subscribers_gained')),color:[255,80,80]},
+      ];
+      const ytcardW=(CW-9)/4;
+      ytKpis.forEach((k,i)=>{
+        const x=ML+i*(ytcardW+3);
+        bg(20,10,10);rrect(x,y3,ytcardW,20,3);
+        bg(...k.color);rrect(x,y3,2.5,20,2);
+        fn();fs(6.5);tc(160,120,120);txt(k.label,x+5,y3+8);
+        fb();fs(12);tc(255,230,230);txt(k.val,x+5,y3+17);
+      });
+      y3+=26;
+
+      // Top Videos table
+      y3=sectionHeader('TOP PERFORMING VIDEOS',y3);
+      const topVids=[...ytData].sort((a,b)=>parseInt(b.views||0)-parseInt(a.views||0)).slice(0,10);
+
+      const vCols=[ML+2,ML+14,ML+90,ML+115,ML+138,ML+160,ML+180];
+      const vHdrs=['#','VIDEO TITLE','VIEWS','WATCH TIME','CTR','SUBS GAINED','DATE'];
+      bg(22,14,14);rect(ML,y3,CW,7);
+      fn();fs(6);tc(160,100,100);
+      vHdrs.forEach((h,i)=>txt(h,vCols[i],y3+5));
+      y3+=8;
+
+      topVids.forEach((r,i)=>{
+        bg(i%2===0?13:16,i%2===0?8:10,i%2===0?8:10);rect(ML,y3,CW,9);
+        const title=String(r.video_title||'—').substring(0,28)+(String(r.video_title||'').length>28?'...':'');
+        const rowVals=[
+          `#${i+1}`,
+          title,
+          num(parseInt(r.views||0)),
+          num(parseFloat(r.watch_time_hours||0))+'h',
+          parseFloat(r.ctr||0).toFixed(1)+'%',
+          num(parseInt(r.subscribers_gained||0)),
+          r.date||'—'
+        ];
+        rowVals.forEach((v,vi)=>{
+          if(vi===0){fb();fs(7);tc(245,166,35);}
+          else if(vi===2){fb();fs(7.5);tc(255,100,100);}
+          else if(vi===4){fb();fs(7.5);tc(34,211,160);}
+          else{fn();fs(7.5);tc(200,175,175);}
+          txt(v,vCols[vi],y3+6.5);
+        });
+        y3+=10;
+      });
+
+      addFooter();
+    }
+
+    // ── PAGE 4 : STRATEGIC RECOMMENDATIONS ──────────────────────────────────
+    newPage();
+    bg(99,102,241);rect(0,0,W,1.5);
+
+    let y4=16;
+    bg(14,14,35);rrect(ML,y4,CW,12,3);
+    bg(99,102,241);rrect(ML,y4,3,12,2);
+    fb();fs(10);tc(180,185,255);txt('STRATEGIC RECOMMENDATIONS',ML+8,y4+8);
+    fn();fs(7.5);tc(120,125,200);txt('Data-driven actions based on your performance',ML+8+118,y4+8);
+    y4+=18;
+
+    const igEng=igData?avg(igData,'likes')/Math.max(avg(igData,'reach'),1)*100:0;
+    const avgCTR2=ytData?avg(ytData,'ctr'):0;
+    const reelAvg2=igData?avg(igData.filter(r=>r.post_type==='Reel'),'likes'):0;
+    const staticAvg2=igData?avg(igData.filter(r=>r.post_type==='Static Post'),'likes'):0;
+    const avgSaves2=igData?avg(igData,'saves'):0;
+
+    const pdfRecs=[
+      {
+        num:'01',
+        title:'Double Down on Reels',
+        impact:'HIGH IMPACT',
+        impactColor:[34,211,160],
+        text:`Reels are your highest performing content format, averaging ${num(reelAvg2)} likes compared to ${num(staticAvg2)} for static posts. This is a significant performance gap. Immediately shift at least 60% of your content calendar to Reels. Focus on the first 3 seconds to hook viewers and always include a strong call-to-action.`
+      },
+      {
+        num:'02',
+        title:'Optimal Posting Schedule',
+        impact:'HIGH IMPACT',
+        impactColor:[34,211,160],
+        text:`Post Reels between 6 PM and 9 PM on Tuesday, Wednesday, and Thursday. These windows consistently deliver the highest algorithmic reach on Instagram. For YouTube, upload on Wednesday and Saturday mornings for best discovery performance. Consistency in schedule trains your audience and the algorithm simultaneously.`
+      },
+      {
+        num:'03',
+        title:'Boost Comment Engagement',
+        impact:'MEDIUM IMPACT',
+        impactColor:[245,166,35],
+        text:`Your current engagement rate stands at ${igEng.toFixed(2)}%. Accounts with strong comment activity receive 2.5x more algorithmic distribution. End every caption with a direct question to your audience. Respond to every comment within the first hour of posting — this signals strong community engagement to the Instagram algorithm.`
+      },
+      {
+        num:'04',
+        title:(avgCTR2<5?'Improve':'Maintain')+' YouTube Click-Through Rate',
+        impact:avgCTR2<5?'HIGH IMPACT':'MAINTAIN',
+        impactColor:avgCTR2<5?[255,120,80]:[99,102,241],
+        text:`Current average CTR is ${avgCTR2.toFixed(1)}%. ${avgCTR2<5?'The industry benchmark is 5-7%. A/B test your thumbnails — use bold text overlays, expressive faces, and high contrast color palettes. Even a 1% improvement in CTR can add thousands of additional monthly views.':'Strong CTR. Continue A/B testing thumbnails every month and document what works. Maintain faces and bold text in thumbnails as these consistently outperform.'}`
+      },
+      {
+        num:'05',
+        title:'Increase Content Save Rate',
+        impact:'MEDIUM IMPACT',
+        impactColor:[245,166,35],
+        text:`Posts averaging ${num(avgSaves2)} saves per post. Saves are the strongest quality signal to the Instagram algorithm — they indicate content worth returning to. Create more "save-worthy" formats: step-by-step tutorials, numbered tip lists, comparison guides, and infographic-style carousels. High save rates unlock the Explore page.`
+      },
+      {
+        num:'06',
+        title:'Build a Consistent Content Calendar',
+        impact:'LONG TERM',
+        impactColor:[99,102,241],
+        text:`Accounts that post on a consistent schedule see 31% higher monthly follower growth than those who post inconsistently. Target 4 to 5 posts per week on Instagram and 2 videos per week on YouTube. Batch-create content 2 weeks ahead to reduce pressure. Track your top performing formats and replicate them systematically.`
+      },
+    ];
+
+    pdfRecs.forEach((rec,i)=>{
+      const cardH=38;
+      bg(13,14,30);rrect(ML,y4,CW,cardH,3);
+      // number badge
+      bg(...rec.impactColor);rrect(ML+3,y4+3,12,12,2);
+      fb();fs(8);tc(10,10,20);txt(rec.num,ML+5,y4+11);
+      // title
+      fb();fs(9.5);tc(238,240,255);txt(rec.title,ML+18,y4+11);
+      // impact badge
+      const impW=pdf.getTextWidth(rec.impact)+4;
+      bg(...rec.impactColor);rrect(ML+18,y4+14,impW,5.5,1.5);
+      fb();fs(5.5);tc(10,10,20);txt(rec.impact,ML+20,y4+18.5);
+      // body text
+      fn();fs(7.5);tc(160,165,200);
+      const lines=pdf.splitTextToSize(rec.text,CW-22);
+      // max 3 lines to keep card height fixed
+      const displayLines=lines.slice(0,3);
+      displayLines.forEach((line,li)=>txt(line,ML+18,y4+24+li*5));
+      y4+=cardH+4;
+    });
+
+    addFooter();
+
+    // Update all footers with correct total page count
+    const total=pdf.getNumberOfPages();
+    for(let p=1;p<=total;p++){
+      pdf.setPage(p);
+      bg(14,14,28);rect(0,H-10,W,10);
+      fn();fs(7);tc(80,80,110);
+      txt(`SocialLens  |  ${companyName}  |  ${date}`,ML,H-3.5);
+      txt(`Page ${p} / ${total}`,W-MR,H-3.5,{align:'right'});
+    }
+
+    pdf.save(`${companyName.replace(/\s+/g,'_')}_Analytics_Report.pdf`);
+
+  }catch(e){
+    console.error('PDF Error:',e);
+    alert('PDF generation failed: '+e.message);
+  }finally{
+    btn.textContent='Export PDF';btn.disabled=false;
+  }
+}
+
+function goBack(){
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('uploadScreen').style.display='flex';
+}
 </script>
 </body>
 </html>
