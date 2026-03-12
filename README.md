@@ -1,146 +1,120 @@
-# 📊 Social Media Analytics Dashboard
+# SocialLens 🔍
 
-> An interactive analytics dashboard for Instagram & YouTube — upload any company's CSV data and get instant visual insights.
+> **See clearly. Analyse smarter. Grow faster.**
 
+A professional social media analytics dashboard that turns raw Instagram and YouTube CSV data into actionable insights — built entirely with HTML, CSS, and JavaScript. No backend. No login. Just upload and go.
 
----
-
-## 🚀 About This Project
-
-This dashboard was built to help marketing analysts and social media managers **analyze performance data** from Instagram and YouTube in one unified interface.
-
-Instead of using fixed sample data, this tool lets you **upload your own CSV files** from any company or brand and instantly generates:
-- KPI summary cards
-- Engagement trend charts
-- Content type performance breakdown
-- Follower & subscriber growth
-- Top performing posts & videos
-- Audience insights
-
-Built as part of a **Marketing Analytics Portfolio** to demonstrate real-world data visualization and analytical thinking skills.
+🔗 **Live Demo:** [rishitjain8458-ui.github.io/social-media-analytics-dashboard](https://rishitjain8458-ui.github.io/social-media-analytics-dashboard)
 
 ---
 
-## ✨ Features
+## What It Does
 
-- 📁 **CSV Upload** — drag and drop your own Instagram or YouTube data
-- 📸 **Instagram Analytics** — likes, reach, impressions, saves, follower growth, content type breakdown
-- ▶️ **YouTube Analytics** — views, watch time, CTR, subscribers gained, top videos
-- ⚡ **Combined Overview** — side-by-side platform comparison
-- 🧠 **AI Insights** — automated marketing recommendations based on data
-- 📱 **Responsive Design** — works on desktop and mobile
-- 🎨 **Dark Mode UI** — clean, professional dashboard aesthetic
+SocialLens takes your Instagram and YouTube performance data and gives you a full analytics suite in seconds — including creator rankings, top reel tracking, strategic recommendations, and a professional PDF export.
+
+Built as a portfolio project by a BBA Marketing Analytics student to demonstrate real-world data analysis and dashboard design skills.
 
 ---
 
-## 🛠️ Tools & Technologies
+## Features
 
-| Tool | Purpose |
-|------|---------|
-| HTML / CSS / JavaScript | Frontend dashboard |
-| Chart.js | Interactive charts & visualizations |
-| PapaParse | CSV file parsing |
-| Python & Pandas | Data processing & analysis |
-| GitHub Pages | Live deployment |
+| Feature | Description |
+|---|---|
+| 📊 **Overview Tab** | Combined Instagram + YouTube view with 6 paired KPI cards |
+| 📸 **Instagram Analytics** | Engagement, reach, impressions, follower growth, saves vs comments |
+| ▶️ **YouTube Analytics** | Views, watch time, CTR trend, subscribers gained, likes vs comments |
+| 🏆 **Creator Leaderboard** | Ranks top creators by total likes and average reel performance |
+| 🎬 **Top Reels Tracker** | Best performing Reels ranked by likes, saves, shares and engagement rate |
+| 💡 **Strategic Recommendations** | 6 data-driven recommendations generated from your actual numbers |
+| 📈 **Industry Benchmarks** | Compares your metrics against industry averages with visual progress bars |
+| 📄 **PDF Export** | Clean 4-page professional report — KPIs, creator leaderboard, top reels, recommendations |
+| 🎨 **Dark UI** | Minimal dark theme built with Chart.js and Google Fonts |
 
 ---
 
-## 📂 Project Structure
+## How To Use
+
+### Option 1 — Try Sample Data
+1. Open the live link above
+2. Click **"Load sample data with creators"**
+3. Click **Generate Dashboard**
+
+### Option 2 — Upload Your Own Data
+1. Export your Instagram data from Meta Business Suite as CSV
+2. Export your YouTube data from YouTube Studio as CSV
+3. Upload both files on the SocialLens upload screen
+4. Enter your brand name and click **Generate Dashboard**
+
+---
+
+## CSV Format Required
+
+**Instagram CSV**
+```
+date, post_type, creator, likes, comments, shares, saves, reach, impressions, followers
+```
+- `post_type` accepts: `Reel`, `Carousel`, `Static Post`, `Story`
+- `creator` is optional — add @handles to unlock the Creator Leaderboard
+- `date` format: YYYY-MM-DD
+
+**YouTube CSV**
+```
+date, video_title, views, watch_time_hours, likes, comments, subscribers_gained, ctr, avg_view_duration
+```
+- `ctr` is a percentage value e.g. `5.2`
+- `date` format: YYYY-MM-DD
+
+---
+
+## Project Structure
 
 ```
 social-media-analytics-dashboard/
 │
-├── company_analytics_dashboard.html   # Main dashboard file
-├── instagram_sample_data.csv          # Sample Instagram dataset
-├── youtube_sample_data.csv            # Sample YouTube dataset
-└── README.md                          # Project documentation
+├── index.html                   # SocialLens — full dashboard
+├── instagram_sample_data.csv    # Sample Instagram data with creator column
+├── youtube_sample_data.csv      # Sample YouTube data
+└── README.md                    # You are here
 ```
 
 ---
 
-## 📋 How To Use
+## Built With
 
-### Option 1 — Use Sample Data
-1. Open the [Live Dashboard](https://rishitjain8458-ui.github.io/social-media-analytics-dashboard/company_analytics_dashboard.html)
-2. Enter any company name
-3. Click **"Load sample data"**
-4. Click **"Generate Dashboard"**
-
-### Option 2 — Upload Your Own Data
-1. Export your Instagram data from **Meta Business Suite → Insights → Export**
-2. Export your YouTube data from **YouTube Studio → Analytics → Export**
-3. Make sure your CSV has these columns:
-
-**Instagram CSV:**
-```
-date, post_type, likes, comments, shares, saves, reach, impressions, followers
-```
-
-**YouTube CSV:**
-```
-date, video_title, views, watch_time_hours, likes, comments, subscribers_gained, ctr, avg_view_duration
-```
-
-4. Upload both files to the dashboard and click **Generate Dashboard**
+| Tool | Purpose |
+|---|---|
+| HTML / CSS / JavaScript | Core structure and styling |
+| Chart.js | All interactive charts |
+| PapaParse | CSV parsing |
+| jsPDF | PDF report generation |
+| Google Fonts — Syne + DM Sans | Typography |
 
 ---
 
-## 📸 Dashboard Preview
-
-### Upload Screen
-- Enter company name
-- Upload Instagram & YouTube CSV files
-- Or load sample data to explore instantly
-
-### Analytics View
-- **6 KPI Cards** — key metrics at a glance
-- **7 Interactive Charts** — trends, breakdowns, comparisons
-- **Top Content Table** — ranked by performance
-- **Audience Demographics** — age & gender split
-- **AI Insight Cards** — actionable recommendations
-
----
-
-## 📊 Sample Dataset
-
-The included sample dataset simulates a real brand's social media performance from **October 2024 to January 2025** including:
-- 41 Instagram posts across Reels, Carousels, Static Posts and Stories
-- 24 YouTube videos with full performance metrics
-- Realistic engagement rates based on industry benchmarks
-
----
-
-## 🎯 Key Insights This Dashboard Reveals
-
-- Which content type drives the highest engagement
-- Best time to post for maximum reach
-- Follower and subscriber growth trends
-- Top performing posts and videos
-- YouTube CTR performance vs industry benchmark
-- Audience age and gender breakdown
-
----
-
-## 👨‍💻 About The Author
+## About the Creator
 
 **Rishit Jain**
 BBA — Finance & Marketing Analytics
 Christ University, Bangalore
 
-Marketing Analytics Intern @ Clapingo | Building data-driven marketing skills
+Currently interning at **Clapingo** with a focus on email marketing and marketing analytics. Building this portfolio to demonstrate hands-on skills in data analysis, dashboard design, and marketing technology.
 
-🔗 [GitHub Profile](https://github.com/rishitjain8458-ui)
-
----
-
-## 📌 More Projects Coming Soon
-
-This is part of a larger **Marketing Analytics Portfolio** including:
-- 📧 Email Marketing Campaign Analyzer
-- 👥 Customer Segmentation Analysis
-- 🔍 SEO & Web Traffic Dashboard
-- 💰 Marketing Mix & Ad Spend Optimizer
+- 📍 Bangalore, India
+- 🎓 Christ University — BBA Finance & Marketing Analytics
+- 💼 Marketing Analytics Intern @ Clapingo
 
 ---
 
-*Built with curiosity and a passion for data-driven marketing.*
+## Portfolio Roadmap
+
+| # | Project | Status |
+|---|---|---|
+| ✅ 1 | SocialLens — Social Media Analytics Dashboard | **Live** |
+| 🔲 2 | Email Marketing Analyzer | Coming Soon |
+| 🔲 3 | Customer Segmentation Dashboard | Coming Soon |
+| 🔲 4 | SEO & Web Traffic Tracker | Coming Soon |
+| 🔲 5 | Marketing Mix Optimizer | Coming Soon |
+
+---
+
+*Built with curiosity, Chart.js, and way too many CSV files.*
