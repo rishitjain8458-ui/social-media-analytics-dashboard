@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Company Social Media Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+:root {
+  --bg: #07080f;
+  --surface: #0f1018;
+  --surface2: #161720;
+  --border: #22243a;
+  --ig: #e1306c;
+  --ig2: #f77737;
+  --yt: #ff3333;
+  --yt2: #ff7070;
+  --accent: #6366f1;
+  --accent2: #a5b4fc;
+  --text: #eeeeff;
+  --muted: #7878a0;
+  --green: #22d3a0;
+  --red: #f87171;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 50% 35% at 15% 15%, rgba(99,102,241,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 85%, rgba(225,48,108,0.08) 0%, transparent 55%);
+  pointer-events:none; z-index:0;
+}
+
+.wrapper { position:relative; z-index:1; max-width:1380px; margin:0 auto; padding:2rem; }
+
+/* ── UPLOAD SCREEN ── */
+#uploadScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.upload-hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-align: center;
+  background: linear-gradient(135deg, #eeeeff 0%, var(--accent2) 50%, var(--ig) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.6rem;
+}
+
+.upload-hero p {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1rem;
+  margin-bottom: 3rem;
+  font-weight: 300;
+}
+
+.upload-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 820px;
+  margin-bottom: 2rem;
+}
+
+.upload-card {
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-card::before {
+  content:'';
+  position:absolute; inset:0;
+  opacity:0;
+  transition: opacity 0.3s;
+}
+
+.upload-card.ig-card::before { background: radial-gradient(ellipse at center, rgba(225,48,108,0.08) 0%, transparent 70%); }
+.upload-card.yt-card::before { background: radial-gradient(ellipse at center, rgba(255,51,51,0.08) 0%, transparent 70%); }
+
+.upload-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+.upload-card:hover::before { opacity: 1; }
+.upload-card.ig-card:hover { border-color: var(--ig); }
+.upload-card.yt-card:hover { border-color: var(--yt); }
+
+.upload-card.has-file { border-style: solid; }
+.upload-card.ig-card.has-file { border-color: var(--ig); background: rgba(225,48,108,0.05); }
+.upload-card.yt-card.has-file { border-color: var(--yt); background: rgba(255,51,51,0.05); }
+
+.upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+.upload-card h3 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:0.4rem; }
+.upload-card p { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+
+.file-input { display:none; }
+
+.upload-status {
+  margin-top: 0.8rem;
+  font-size: 0.75rem;
+  color: var(--green);
+  font-weight: 500;
+  min-height: 1rem;
+}
+
+.company-input-wrap {
+  width: 100%;
+  max-width: 820px;
+  margin-bottom: 1.5rem;
+}
+
+.company-input-wrap label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.company-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.company-input:focus { border-color: var(--accent); }
+.company-input::placeholder { color: var(--muted); }
+
+.generate-btn {
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.4); }
+.generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.sample-hint {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.sample-hint a {
+  color: var(--accent2);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.csv-format {
+  width: 100%;
+  max-width: 820px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.csv-format h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.format-block { background: var(--surface2); border-radius: 10px; padding: 1rem; }
+.format-block h5 { font-size: 0.78rem; margin-bottom: 0.6rem; }
+.format-block.ig-fmt h5 { color: var(--ig); }
+.format-block.yt-fmt h5 { color: var(--yt2); }
+.format-block code { font-size: 0.68rem; color: var(--muted); line-height: 1.7; display: block; font-family: monospace; }
+
+/* ── DASHBOARD ── */
+#dashboard { display: none; }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.header-left p { color: var(--muted); font-size: 0.82rem; margin-top: 0.2rem; }
+
+.back-btn {
+  padding: 0.5rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover { border-color: var(--accent); color: var(--text); }
+
+/* KPI GRID */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.3rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.kpi-card:hover { transform: translateY(-3px); }
+
+.kpi-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0;
+  height: 2px;
+  background: var(--bar, linear-gradient(90deg, var(--accent), var(--accent2)));
+}
+
+.kpi-label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.4rem; }
+.kpi-value { font-family:'Syne',sans-serif; font-size:1.75rem; font-weight:700; letter-spacing:-0.02em; line-height:1; }
+.kpi-sub { font-size:0.72rem; color:var(--muted); margin-top:0.35rem; }
+.kpi-icon { position:absolute; right:1rem; top:1rem; font-size:1.3rem; opacity:0.2; }
+
+/* TABS */
+.tab-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.35rem;
+  width: fit-content;
+}
+
+.tab {
+  padding: 0.45rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab.active-ig { background: linear-gradient(135deg, var(--ig), var(--ig2)); color: white; }
+.tab.active-yt { background: linear-gradient(135deg, var(--yt), var(--yt2)); color: white; }
+
+/* CHART CARDS */
+.chart-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+.chart-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.4rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.card-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; }
+
+.badge {
+  font-size: 0.68rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 100px;
+  font-weight: 500;
+}
+
+.badge-ig { background:rgba(225,48,108,0.15); color:var(--ig); }
+.badge-yt { background:rgba(255,51,51,0.15); color:var(--yt2); }
+
+.chart-wrap { position:relative; height:200px; }
+.chart-wrap-lg { position:relative; height:240px; }
+
+/* TABLE */
+.data-table { width:100%; border-collapse:collapse; font-size:0.80rem; }
+.data-table th { text-align:left; padding:0.55rem 0.7rem; color:var(--muted); font-weight:500; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; border-bottom:1px solid var(--border); }
+.data-table td { padding:0.65rem 0.7rem; border-bottom:1px solid rgba(34,36,58,0.5); }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:rgba(99,102,241,0.04); }
+
+.no-data {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 3rem;
+}
+
+footer {
+  text-align:center;
+  color:var(--muted);
+  font-size:0.70rem;
+  margin-top:2rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--border);
+}
+
+@media (max-width:800px) {
+  .upload-cards { grid-template-columns:1fr; }
+  .format-grid { grid-template-columns:1fr; }
+  .chart-grid-2, .chart-grid-3 { grid-template-columns:1fr; }
+  .upload-hero h1 { font-size:2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ UPLOAD SCREEN ══════════════════════════════════════════════════════ -->
+<div id="uploadScreen">
+  <div class="upload-hero">
+    <h1>Company Analytics Dashboard</h1>
+    <p>Upload your own CSV data — get instant visual analytics for any company</p>
+  </div>
+
+  <div class="company-input-wrap">
+    <label>Company / Brand Name</label>
+    <input type="text" class="company-input" id="companyName" placeholder="e.g. Clapingo, Nike, Zomato, Your Brand..."/>
+  </div>
+
+  <div class="upload-cards">
+    <!-- Instagram Upload -->
+    <div class="upload-card ig-card" onclick="document.getElementById('igFile').click()">
+      <div class="upload-icon">📸</div>
+      <h3>Instagram Data</h3>
+      <p>Upload your Instagram CSV with post metrics — likes, reach, impressions, comments, saves</p>
+      <input type="file" class="file-input" id="igFile" accept=".csv" onchange="handleFile('ig', this)"/>
+      <div class="upload-status" id="igStatus">Click to upload CSV</div>
+    </div>
+
+    <!-- YouTube Upload -->
+    <div class="upload-card yt-card" onclick="document.getElementById('ytFile').click()">
+      <div class="upload-icon">▶️</div>
+      <h3>YouTube Data</h3>
+      <p>Upload your YouTube CSV with video metrics — views, watch time, CTR, subscribers gained</p>
+      <input type="file" class="file-input" id="ytFile" accept=".csv" onchange="handleFile('yt', this)"/>
+      <div class="upload-status" id="ytStatus">Click to upload CSV</div>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generateBtn" onclick="generateDashboard()" disabled>
+    ⚡ Generate Dashboard
+  </button>
+
+  <p class="sample-hint">
+    Don't have data yet? <a onclick="loadSampleData()">Load sample data</a> to see how it works
+  </p>
+
+  <div class="csv-format">
+    <h4>📋 Required CSV Format</h4>
+    <div class="format-grid">
+      <div class="format-block ig-fmt">
+        <h5>📸 Instagram CSV Columns</h5>
+        <code>
+date<br>
+post_type (Reel / Carousel / Static Post / Story)<br>
+likes<br>
+comments<br>
+shares<br>
+saves<br>
+reach<br>
+impressions<br>
+followers
+        </code>
+      </div>
+      <div class="format-block yt-fmt">
+        <h5>▶️ YouTube CSV Columns</h5>
+        <code>
+date<br>
+video_title<br>
+views<br>
+watch_time_hours<br>
+likes<br>
+comments<br>
+subscribers_gained<br>
+ctr<br>
+avg_view_duration
+        </code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════════════════════ -->
+<div id="dashboard">
+<div class="wrapper">
+
+  <header>
+    <div class="header-left">
+      <h1 id="dashTitle">Company Dashboard</h1>
+      <p id="dashSubtitle">Social Media Analytics</p>
+    </div>
+    <button class="back-btn" onclick="goBack()">← Upload New Data</button>
+  </header>
+
+  <!-- TABS -->
+  <div class="tab-row" id="tabRow"></div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- IG SECTION -->
+  <div id="igSection" style="display:none">
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Engagement Over Time</span><span class="badge badge-ig">Instagram</span></div>
+        <div class="chart-wrap-lg"><canvas id="igEngChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Reach & Impressions</span><span class="badge badge-ig">Instagram</span></div>
+        <div class="chart-wrap-lg"><canvas id="igReachChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid-3">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Content Type Performance</span><span class="badge badge-ig">Avg Likes</span></div>
+        <div class="chart-wrap"><canvas id="igContentChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Follower Growth</span><span class="badge badge-ig">Instagram</span></div>
+        <div class="chart-wrap"><canvas id="igFollowerChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Saves vs Comments</span><span class="badge badge-ig">Quality Signals</span></div>
+        <div class="chart-wrap"><canvas id="igSavesChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-header"><span class="card-title">Top Performing Posts</span><span class="badge badge-ig">By Likes</span></div>
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Date</th><th>Type</th><th>Likes</th><th>Reach</th><th>Saves</th><th>Eng Rate</th></tr></thead>
+        <tbody id="igTopTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- YT SECTION -->
+  <div id="ytSection" style="display:none">
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Views Over Time</span><span class="badge badge-yt">YouTube</span></div>
+        <div class="chart-wrap-lg"><canvas id="ytViewsChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Watch Time Trend</span><span class="badge badge-yt">Hours</span></div>
+        <div class="chart-wrap-lg"><canvas id="ytWatchChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid-3">
+      <div class="card">
+        <div class="card-header"><span class="card-title">CTR Trend</span><span class="badge badge-yt">%</span></div>
+        <div class="chart-wrap"><canvas id="ytCTRChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Subscribers Gained</span><span class="badge badge-yt">Per Video</span></div>
+        <div class="chart-wrap"><canvas id="ytSubChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Likes vs Comments</span><span class="badge badge-yt">Engagement</span></div>
+        <div class="chart-wrap"><canvas id="ytEngChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-header"><span class="card-title">Top Performing Videos</span><span class="badge badge-yt">By Views</span></div>
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Video Title</th><th>Date</th><th>Views</th><th>CTR</th><th>Watch Time</th><th>Subs Gained</th></tr></thead>
+        <tbody id="ytTopTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <strong id="footerCompany"></strong> · Social Media Analytics Dashboard · Built by Rishit · Tools: Python, Pandas, Chart.js
+  </footer>
+
+</div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let igData = null, ytData = null;
+let charts = {};
+let activeTab = null;
+
+// ── FILE HANDLER ───────────────────────────────────────────────────────────
+function handleFile(platform, input) {
+  const file = input.files[0];
+  if (!file) return;
+  Papa.parse(file, {
+    header: true, skipEmptyLines: true,
+    complete: (res) => {
+      if (platform === 'ig') {
+        igData = res.data;
+        document.getElementById('igStatus').textContent = `✓ ${file.name} (${res.data.length} rows)`;
+        document.querySelector('.ig-card').classList.add('has-file');
+      } else {
+        ytData = res.data;
+        document.getElementById('ytStatus').textContent = `✓ ${file.name} (${res.data.length} rows)`;
+        document.querySelector('.yt-card').classList.add('has-file');
+      }
+      checkReady();
+    }
+  });
+}
+
+function checkReady() {
+  document.getElementById('generateBtn').disabled = !(igData || ytData);
+}
+
+// ── SAMPLE DATA ────────────────────────────────────────────────────────────
+function loadSampleData() {
+  igData = generateSampleIG();
+  ytData = generateSampleYT();
+  document.getElementById('igStatus').textContent = '✓ Sample Instagram data loaded (41 rows)';
+  document.getElementById('ytStatus').textContent = '✓ Sample YouTube data loaded (24 rows)';
+  document.querySelector('.ig-card').classList.add('has-file');
+  document.querySelector('.yt-card').classList.add('has-file');
+  document.getElementById('companyName').value = 'Sample Brand Co.';
+  checkReady();
+}
+
+function generateSampleIG() {
+  const types = ['Reel','Carousel','Static Post','Story'];
+  const rows = [];
+  let followers = 42800;
+  const start = new Date('2024-10-01');
+  for (let i = 0; i < 41; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i*3);
+    const type = types[i % types.length];
+    const base = type==='Reel'?5000:type==='Carousel'?3000:type==='Story'?900:1500;
+    const likes = Math.round(base + Math.random()*base*0.6);
+    followers += Math.round(150 + Math.random()*200);
+    rows.push({ date: d.toISOString().split('T')[0], post_type: type, likes, comments: Math.round(likes*0.04), shares: Math.round(likes*0.07), saves: Math.round(likes*0.12), reach: Math.round(likes*6.5), impressions: Math.round(likes*10), followers });
+  }
+  return rows;
+}
+
+function generateSampleYT() {
+  const titles = ['Marketing Basics','Data Insights','Growth Hacks','Email Marketing','Social ROI','Content Strategy','Algorithm Secrets','Brand Building','Analytics Tools','SEO vs Paid','Customer Journey','A/B Testing'];
+  const rows = [];
+  const start = new Date('2024-10-01');
+  for (let i = 0; i < 24; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i*5);
+    const views = Math.round(6000 + Math.random()*9000);
+    rows.push({ date: d.toISOString().split('T')[0], video_title: titles[i%titles.length], views, watch_time_hours: Math.round(views*0.05), likes: Math.round(views*0.075), comments: Math.round(views*0.017), subscribers_gained: Math.round(views*0.022), ctr: +(3.8+Math.random()*3.5).toFixed(1), avg_view_duration: '5:12' });
+  }
+  return rows;
+}
+
+// ── GENERATE ───────────────────────────────────────────────────────────────
+function generateDashboard() {
+  const company = document.getElementById('companyName').value.trim() || 'Your Brand';
+  document.getElementById('uploadScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('dashTitle').textContent = company;
+  document.getElementById('dashSubtitle').textContent = `Social Media Analytics · ${igData?igData.length+' Instagram posts':''}${igData&&ytData?' · ':''}${ytData?ytData.length+' YouTube videos':''}`;
+  document.getElementById('footerCompany').textContent = company;
+
+  Object.values(charts).forEach(c => c&&c.destroy()); charts = {};
+
+  buildTabs();
+  if (igData) { showIGSection(); buildIGCharts(); }
+  if (ytData) { showYTSection(); buildYTCharts(); }
+  if (igData && ytData) { switchTab('ig'); }
+}
+
+function buildTabs() {
+  const row = document.getElementById('tabRow');
+  row.innerHTML = '';
+  if (igData) row.innerHTML += `<button class="tab" id="tabIG" onclick="switchTab('ig')">📸 Instagram</button>`;
+  if (ytData) row.innerHTML += `<button class="tab" id="tabYT" onclick="switchTab('yt')">▶️ YouTube</button>`;
+  if (igData && ytData) row.innerHTML += `<button class="tab" id="tabBoth" onclick="switchTab('both')">⚡ Overview</button>`;
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
+  if (tab === 'ig') {
+    document.getElementById('igSection').style.display = 'block';
+    document.getElementById('ytSection').style.display = 'none';
+    document.getElementById('tabIG').classList.add('active-ig');
+    buildIGKPIs();
+  } else if (tab === 'yt') {
+    document.getElementById('igSection').style.display = 'none';
+    document.getElementById('ytSection').style.display = 'block';
+    document.getElementById('tabYT').classList.add('active-yt');
+    buildYTKPIs();
+  } else {
+    document.getElementById('igSection').style.display = 'block';
+    document.getElementById('ytSection').style.display = 'block';
+    document.getElementById('tabBoth') && document.getElementById('tabBoth').classList.add('active-ig');
+    buildBothKPIs();
+  }
+}
+
+function showIGSection() { document.getElementById('igSection').style.display = 'block'; }
+function showYTSection() { document.getElementById('ytSection').style.display = 'block'; }
+
+// ── KPIs ───────────────────────────────────────────────────────────────────
+function num(n) { return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n; }
+
+function buildIGKPIs() {
+  if (!igData) return;
+  const totalLikes = igData.reduce((s,r) => s+parseInt(r.likes||0), 0);
+  const totalReach = igData.reduce((s,r) => s+parseInt(r.reach||0), 0);
+  const totalSaves = igData.reduce((s,r) => s+parseInt(r.saves||0), 0);
+  const avgEng = (igData.reduce((s,r) => s+(parseInt(r.likes||0)+parseInt(r.comments||0)), 0) / igData.length).toFixed(0);
+  const latestFollowers = igData[igData.length-1]?.followers || 0;
+  const reels = igData.filter(r=>r.post_type==='Reel');
+  const avgReelLikes = reels.length ? Math.round(reels.reduce((s,r)=>s+parseInt(r.likes||0),0)/reels.length) : 0;
+
+  renderKPIs([
+    { label:'Total Followers', value: num(parseInt(latestFollowers)), sub: `${igData.length} posts analyzed`, icon:'👤', bar:'linear-gradient(90deg,#e1306c,#f77737)' },
+    { label:'Total Reach', value: num(totalReach), sub:'Across all posts', icon:'📡', bar:'linear-gradient(90deg,#833ab4,#e1306c)' },
+    { label:'Total Likes', value: num(totalLikes), sub:'All content', icon:'❤️', bar:'linear-gradient(90deg,#f77737,#fcb045)' },
+    { label:'Avg Engagement', value: num(parseInt(avgEng)), sub:'Per post', icon:'📊', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)' },
+    { label:'Total Saves', value: num(totalSaves), sub:'Quality signal', icon:'🔖', bar:'linear-gradient(90deg,#10b981,#6ee7b7)' },
+    { label:'Avg Reel Likes', value: num(avgReelLikes), sub:'Reel performance', icon:'🎬', bar:'linear-gradient(90deg,#e1306c,#833ab4)' },
+  ]);
+}
+
+function buildYTKPIs() {
+  if (!ytData) return;
+  const totalViews = ytData.reduce((s,r) => s+parseInt(r.views||0), 0);
+  const totalSubs = ytData.reduce((s,r) => s+parseInt(r.subscribers_gained||0), 0);
+  const totalWT = ytData.reduce((s,r) => s+parseFloat(r.watch_time_hours||0), 0);
+  const avgCTR = (ytData.reduce((s,r)=>s+parseFloat(r.ctr||0),0)/ytData.length).toFixed(2);
+  const totalLikes = ytData.reduce((s,r) => s+parseInt(r.likes||0), 0);
+  const avgViews = Math.round(totalViews/ytData.length);
+
+  renderKPIs([
+    { label:'Total Views', value: num(totalViews), sub:`${ytData.length} videos`, icon:'👁️', bar:'linear-gradient(90deg,#ff3333,#ff7070)' },
+    { label:'Subs Gained', value: num(totalSubs), sub:'From uploads', icon:'🔔', bar:'linear-gradient(90deg,#c00,#ff3333)' },
+    { label:'Watch Time', value: num(Math.round(totalWT))+'h', sub:'Total hours', icon:'⏱️', bar:'linear-gradient(90deg,#ff7070,#ff3333)' },
+    { label:'Avg CTR', value: avgCTR+'%', sub:'Click-through rate', icon:'🎯', bar:'linear-gradient(90deg,#f59e0b,#ff3333)' },
+    { label:'Total Likes', value: num(totalLikes), sub:'All videos', icon:'👍', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)' },
+    { label:'Avg Views/Video', value: num(avgViews), sub:'Per upload', icon:'📺', bar:'linear-gradient(90deg,#ff3333,#c00)' },
+  ]);
+}
+
+function buildBothKPIs() {
+  const igFollowers = igData ? parseInt(igData[igData.length-1]?.followers||0) : 0;
+  const ytSubs = ytData ? ytData.reduce((s,r)=>s+parseInt(r.subscribers_gained||0),0) : 0;
+  const igReach = igData ? igData.reduce((s,r)=>s+parseInt(r.reach||0),0) : 0;
+  const ytViews = ytData ? ytData.reduce((s,r)=>s+parseInt(r.views||0),0) : 0;
+  const igLikes = igData ? igData.reduce((s,r)=>s+parseInt(r.likes||0),0) : 0;
+  const ytLikes = ytData ? ytData.reduce((s,r)=>s+parseInt(r.likes||0),0) : 0;
+
+  renderKPIs([
+    { label:'IG Followers', value: num(igFollowers), sub:'Instagram', icon:'📸', bar:'linear-gradient(90deg,#e1306c,#f77737)' },
+    { label:'YT Subs Gained', value: num(ytSubs), sub:'YouTube', icon:'▶️', bar:'linear-gradient(90deg,#ff3333,#ff7070)' },
+    { label:'IG Total Reach', value: num(igReach), sub:'Instagram', icon:'📡', bar:'linear-gradient(90deg,#833ab4,#e1306c)' },
+    { label:'YT Total Views', value: num(ytViews), sub:'YouTube', icon:'👁️', bar:'linear-gradient(90deg,#c00,#ff7070)' },
+    { label:'IG Total Likes', value: num(igLikes), sub:'Instagram', icon:'❤️', bar:'linear-gradient(90deg,#f77737,#fcb045)' },
+    { label:'YT Total Likes', value: num(ytLikes), sub:'YouTube', icon:'👍', bar:'linear-gradient(90deg,#6366f1,#a5b4fc)' },
+  ]);
+}
+
+function renderKPIs(arr) {
+  document.getElementById('kpiGrid').innerHTML = arr.map(k => `
+    <div class="kpi-card" style="--bar:${k.bar}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+// ── IG CHARTS ──────────────────────────────────────────────────────────────
+function buildIGCharts() {
+  if (!igData) return;
+  Chart.defaults.color = '#7878a0';
+  Chart.defaults.font.family = 'DM Sans';
+  Chart.defaults.borderColor = '#22243a';
+
+  const dates = igData.map(r => r.date?.slice(5));
+  const likes = igData.map(r => parseInt(r.likes||0));
+  const reach = igData.map(r => parseInt(r.reach||0));
+  const impressions = igData.map(r => parseInt(r.impressions||0));
+  const followers = igData.map(r => parseInt(r.followers||0));
+  const saves = igData.map(r => parseInt(r.saves||0));
+  const comments = igData.map(r => parseInt(r.comments||0));
+
+  // Engagement
+  const ctx1 = document.getElementById('igEngChart').getContext('2d');
+  const g1 = ctx1.createLinearGradient(0,0,0,240); g1.addColorStop(0,'rgba(225,48,108,0.3)'); g1.addColorStop(1,'rgba(225,48,108,0)');
+  charts.igEng = new Chart(ctx1, { type:'line', data:{ labels:dates, datasets:[{ label:'Likes', data:likes, borderColor:'#e1306c', backgroundColor:g1, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#1a1b28'}, ticks:{callback:v=>num(v)} }, x:{ grid:{display:false}, ticks:{maxTicksLimit:8} } } } });
+
+  // Reach vs Impressions
+  const ctx2 = document.getElementById('igReachChart').getContext('2d');
+  charts.igReach = new Chart(ctx2, { type:'bar', data:{ labels:dates, datasets:[ { label:'Reach', data:reach, backgroundColor:'rgba(225,48,108,0.7)', borderRadius:3 }, { label:'Impressions', data:impressions, backgroundColor:'rgba(131,58,180,0.6)', borderRadius:3 } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true, position:'top', labels:{usePointStyle:true,padding:12,font:{size:11}}}}, scales:{ y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}} } } });
+
+  // Content type
+  const typeMap = {};
+  igData.forEach(r => { const t=r.post_type||'Unknown'; if(!typeMap[t]) typeMap[t]={sum:0,count:0}; typeMap[t].sum+=parseInt(r.likes||0); typeMap[t].count++; });
+  const typeLabels = Object.keys(typeMap);
+  const typeAvg = typeLabels.map(t => Math.round(typeMap[t].sum/typeMap[t].count));
+  const ctx3 = document.getElementById('igContentChart').getContext('2d');
+  charts.igContent = new Chart(ctx3, { type:'bar', data:{ labels:typeLabels, datasets:[{ label:'Avg Likes', data:typeAvg, backgroundColor:['rgba(225,48,108,0.8)','rgba(247,119,55,0.75)','rgba(99,102,241,0.75)','rgba(34,211,160,0.75)'], borderRadius:6, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false}}} } });
+
+  // Follower growth
+  const ctx4 = document.getElementById('igFollowerChart').getContext('2d');
+  const g4 = ctx4.createLinearGradient(0,0,0,200); g4.addColorStop(0,'rgba(131,58,180,0.3)'); g4.addColorStop(1,'rgba(131,58,180,0)');
+  charts.igFollower = new Chart(ctx4, { type:'line', data:{ labels:dates, datasets:[{ label:'Followers', data:followers, borderColor:'#833ab4', backgroundColor:g4, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // Saves vs Comments
+  const ctx5 = document.getElementById('igSavesChart').getContext('2d');
+  charts.igSaves = new Chart(ctx5, { type:'bar', data:{ labels:dates, datasets:[ { label:'Saves', data:saves, backgroundColor:'rgba(34,211,160,0.7)', borderRadius:3 }, { label:'Comments', data:comments, backgroundColor:'rgba(99,102,241,0.65)', borderRadius:3 } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true,position:'top',labels:{usePointStyle:true,padding:12,font:{size:11}}}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // Top posts table
+  const sorted = [...igData].sort((a,b) => parseInt(b.likes||0)-parseInt(a.likes||0)).slice(0,8);
+  document.getElementById('igTopTable').innerHTML = sorted.map((r,i) => {
+    const eng = ((parseInt(r.likes||0)+parseInt(r.comments||0))/Math.max(parseInt(r.reach||1),1)*100).toFixed(2);
+    return `<tr><td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td><td>${r.date||''}</td><td><span style="background:rgba(225,48,108,0.15);color:#e1306c;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:100px">${r.post_type||''}</span></td><td style="color:#22d3a0;font-weight:500">${num(parseInt(r.likes||0))}</td><td>${num(parseInt(r.reach||0))}</td><td>${num(parseInt(r.saves||0))}</td><td>${eng}%</td></tr>`;
+  }).join('');
+}
+
+// ── YT CHARTS ──────────────────────────────────────────────────────────────
+function buildYTCharts() {
+  if (!ytData) return;
+  const dates = ytData.map(r => r.date?.slice(5));
+  const views = ytData.map(r => parseInt(r.views||0));
+  const wt = ytData.map(r => parseFloat(r.watch_time_hours||0));
+  const ctr = ytData.map(r => parseFloat(r.ctr||0));
+  const subs = ytData.map(r => parseInt(r.subscribers_gained||0));
+  const ytLikes = ytData.map(r => parseInt(r.likes||0));
+  const ytComments = ytData.map(r => parseInt(r.comments||0));
+
+  // Views
+  const ctx1 = document.getElementById('ytViewsChart').getContext('2d');
+  const g1 = ctx1.createLinearGradient(0,0,0,240); g1.addColorStop(0,'rgba(255,51,51,0.3)'); g1.addColorStop(1,'rgba(255,51,51,0)');
+  charts.ytViews = new Chart(ctx1, { type:'line', data:{ labels:dates, datasets:[{ label:'Views', data:views, borderColor:'#ff3333', backgroundColor:g1, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // Watch time
+  const ctx2 = document.getElementById('ytWatchChart').getContext('2d');
+  const g2 = ctx2.createLinearGradient(0,0,0,240); g2.addColorStop(0,'rgba(99,102,241,0.3)'); g2.addColorStop(1,'rgba(99,102,241,0)');
+  charts.ytWatch = new Chart(ctx2, { type:'line', data:{ labels:dates, datasets:[{ label:'Watch Time (hrs)', data:wt, borderColor:'#6366f1', backgroundColor:g2, tension:0.4, fill:true, pointRadius:2 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // CTR
+  const ctx3 = document.getElementById('ytCTRChart').getContext('2d');
+  charts.ytCTR = new Chart(ctx3, { type:'bar', data:{ labels:dates, datasets:[{ label:'CTR %', data:ctr, backgroundColor:ctr.map(v=>v>=5?'rgba(34,211,160,0.8)':'rgba(255,51,51,0.7)'), borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // Subs
+  const ctx4 = document.getElementById('ytSubChart').getContext('2d');
+  charts.ytSub = new Chart(ctx4, { type:'bar', data:{ labels:dates, datasets:[{ label:'Subs Gained', data:subs, backgroundColor:'rgba(255,112,112,0.75)', borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#1a1b28'}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // Likes vs Comments
+  const ctx5 = document.getElementById('ytEngChart').getContext('2d');
+  charts.ytEng = new Chart(ctx5, { type:'bar', data:{ labels:dates, datasets:[ { label:'Likes', data:ytLikes, backgroundColor:'rgba(255,51,51,0.7)', borderRadius:3 }, { label:'Comments', data:ytComments, backgroundColor:'rgba(245,158,11,0.7)', borderRadius:3 } ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true,position:'top',labels:{usePointStyle:true,padding:12,font:{size:11}}}}, scales:{y:{grid:{color:'#1a1b28'},ticks:{callback:v=>num(v)}}, x:{grid:{display:false},ticks:{maxTicksLimit:8}}} } });
+
+  // Top videos table
+  const sorted = [...ytData].sort((a,b) => parseInt(b.views||0)-parseInt(a.views||0)).slice(0,8);
+  document.getElementById('ytTopTable').innerHTML = sorted.map((r,i) => `
+    <tr>
+      <td style="color:${i<3?'#f59e0b':'var(--muted)'};font-weight:700">#${i+1}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.video_title||''}</td>
+      <td>${r.date||''}</td>
+      <td style="color:#22d3a0;font-weight:500">${num(parseInt(r.views||0))}</td>
+      <td>${parseFloat(r.ctr||0).toFixed(1)}%</td>
+      <td>${num(parseFloat(r.watch_time_hours||0))}h</td>
+      <td>${num(parseInt(r.subscribers_gained||0))}</td>
+    </tr>`).join('');
+}
+
+function goBack() {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('uploadScreen').style.display = 'flex';
+}
+
+// Init: if both platforms, show overview tab
+window.addEventListener('load', () => {});
+</script>
+</body>
+</html>
